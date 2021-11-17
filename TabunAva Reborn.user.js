@@ -1,29 +1,50 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.3.1
 // @description  Установка своего аватара на Табуне!
-// @author       ???
+// @author       ( IntelRug && ( Kujivunia || Niko_de_Andjelo ) )
 // @match        https://tabun.everypony.ru/*
 // @grant        none
 // @license MIT
 // ==/UserScript==
-// Я не умею писать скрипты, поэтому "TabunAva" являет собой вольную переделку НЕ моего "Tabun Swarm" https://greasyfork.org/ru/scripts/400907-tabun-swarm
+// Я не умею писать скрипты, поэтому "TabunAva" начиная с версии 0.3 была полностью переписана IntelRug
 //IDENTICON: https://avatars.dicebear.com/styles/identicon
+const avaPostLinkGettingThere = "https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/AvaPostLink";
+const defaultAvaPostLink = "https://tabun.everypony.ru/blog/uniblog/203681.html";
 const everyponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
 const everyponyCdnStorageLink = '//cdn.everypony.ru/storage/';
+
 let avaDictionary = {};
 
-function getAvatarsDocument() {
-
-    return fetch('https://tabun.everypony.ru/blog/uniblog/203681.html')
+//Загрузка ссылки на пост с аватарами
+function getLinkToAvatarsDocument(){
+    return fetch(avaPostLinkGettingThere)
         .then((response) => {
-        return response.text();
+        if (response.ok) {
+            return response.text();
+        }
+        else {
+            return defaultAvaPostLink;
+        }
     })
         .then((text) => {
-        let domParser = new DOMParser();
-        return domParser.parseFromString(text, "text/html");
+        let avaPostLink = text;
+        return avaPostLink || defaultAvaPostLink;
     });
+}
+
+function getAvatarsDocument() {
+    return getLinkToAvatarsDocument()
+        .then((link) => {
+        return fetch(link)
+            .then((response) => {
+            return response.text();
+        })
+            .then((text) => {
+            let domParser = new DOMParser();
+            return domParser.parseFromString(text, "text/html");
+        })});
 }
 
 function fillAvatarsDictionary(avaDocument) {
