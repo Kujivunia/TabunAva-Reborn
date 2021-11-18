@@ -10,8 +10,8 @@
 // ==/UserScript==
 // Я не умею писать скрипты, поэтому "TabunAva" начиная с версии 0.3 была полностью переписана IntelRug
 //IDENTICON: https://avatars.dicebear.com/styles/identicon
-const avaPostLinkGettingThere = "https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/AvaPostLink";
-const defaultAvaPostLink = "https://tabun.everypony.ru/blog/uniblog/203681.html";
+const avaPostLinkGettingThere = 'https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/AvaPostLink';
+const defaultAvaPostLink = 'https://tabun.everypony.ru/blog/uniblog/203681.html';
 const everyponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
 const everyponyCdnStorageLink = '//cdn.everypony.ru/storage/';
 
@@ -108,7 +108,7 @@ function isDefaultAvatar(link) {
 }
 
 function getIdenticonAvatar(username) {
-    return `https://avatars.dicebear.com/api/identicon/${username}.svg?scale=100&size=48`;
+   return 'https://avatars.dicebear.com/api/identicon/' + username + '.svg?scale=100&size=48';
 }
 
 function getNewTabunAvatar(username) {
