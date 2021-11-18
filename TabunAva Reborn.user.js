@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.3.1.2
 // @description  Установка своего аватара на Табуне!
 // @author       ( IntelRug && ( Kujivunia || Niko_de_Andjelo ) )
 // @match        https://tabun.everypony.ru/*
