@@ -481,10 +481,8 @@ function getBlackList() {
 function replaceAvatarInImageNode(imageNode, username) {
   const ignore = getBlackList();
 
-  if (ignore.includes(username)) return;
-
   const tabunAvatar = getNewTabunAvatar(username);
-  if (tabunAvatar) {
+  if (tabunAvatar && !ignore.includes(username)) {
     imageNode.setAttribute('src', tabunAvatar);
 
     if (!GSettings.animated && isGIF(tabunAvatar)) {
