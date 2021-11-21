@@ -144,7 +144,7 @@ function saveSettings() {
 
 function getDefaultRemoteSettings() {
   return {
-    post: 'https://tabun.everypony.ru/blog/uniblog/203681.html',
+    post: 'https://tabun.everypony.ru/blog/uniblog/203768.html',
     blacklist: [],
   };
 }
@@ -231,6 +231,9 @@ function getSettingsTemplate() {
   return `
     <div class="wrapper-content">
       <dl class="form-item">
+        <a href="https://tabun.everypony.ru/settings/profile/" id="ta-popup-avatar-upload">Загрузить аватар</a>
+      </dl>
+      <dl class="form-item">
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>
         <select name="faceless" id="faceless" class="input-width-200">
           <option value="default" selected="">Не изменять</option>
@@ -241,7 +244,7 @@ function getSettingsTemplate() {
       </dl>
       <dl class="form-item">
         <label for="faceless_picture" style="margin-bottom: 7px">
-          Своя картинка:
+          Своя картинка безликого пони:
         </label>
         <input
           type="text"
@@ -307,13 +310,14 @@ function getSettingsTemplate() {
 }
 
 function initSettingsPage() {
-  const widemodeNode = document.querySelector('#widemode');
-  widemodeNode.innerHTML += getSettingsButtonTemplate();
+  if (!isTabunAvaSettingsPage()) {
+    const widemodeNode = document.querySelector('#widemode');
+    widemodeNode.innerHTML += getSettingsButtonTemplate();
 
-  const popup = document.createElement('div');
-  popup.classList.add('ta-popup');
-  popup.style.display = 'none';
-  popup.innerHTML = `
+    const popup = document.createElement('div');
+    popup.classList.add('ta-popup');
+    popup.style.display = 'none';
+    popup.innerHTML = `
       <style>
         .ta-popup {
           position: fixed;
@@ -330,18 +334,19 @@ function initSettingsPage() {
       </style>
       <div id="settings-popup-content"></div>
     `
-  document.body.appendChild(popup);
+    document.body.appendChild(popup);
 
-  widemodeNode.addEventListener('click', () => {
-    if (popup.style.display === 'none') {
-      popup.style.display = 'block';
-    } else {
-      popup.style.display = 'none';
-    }
-  });
+    widemodeNode.addEventListener('click', () => {
+      if (popup.style.display === 'none') {
+        popup.style.display = 'block';
+      } else {
+        popup.style.display = 'none';
+      }
+    });
 
-  const settingsNode = document.querySelector('#settings-popup-content');
-  replaceSettingsForm(settingsNode);
+    const settingsNode = document.querySelector('#settings-popup-content');
+    replaceSettingsForm(settingsNode);
+  }
 
   if (window.location.href.includes('/settings')) {
     addLinkToNavigation();
@@ -372,12 +377,13 @@ function fillAvatarsDictionary(avaDocument) {
     if (!username) return;
 
     const contentNode = commentNode.querySelector('.comment-content');
-    const imageNode = contentNode && contentNode.querySelector('.text > img');
+    const textNode = contentNode && contentNode.querySelector('.text');
 
-    if (imageNode && imageNode.hasAttribute('src')) {
-      GAvaDictionary[username] = imageNode
-        .getAttribute('src')
-        .replace(GEveryponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
+    if (textNode && textNode.textContent) {
+      const match = textNode.textContent.match(/\[avatar.*src="([^ ]+)".*]/);
+      if (match && match[1]) {
+        GAvaDictionary[username] = match[1].replace(GEveryponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
+      }
     }
   });
 }
@@ -434,7 +440,10 @@ function getIdenticonAvatar(username) {
 
 function getNewTabunAvatar(username) {
   if (GAvaDictionary[username]) {
-    return GEveryponyCdnStorageLink + GAvaDictionary[username];
+    if (!/^(https?:)?\/\//.test(GAvaDictionary[username])) {
+      return GEveryponyCdnStorageLink + GAvaDictionary[username];
+    }
+    return GAvaDictionary[username];
   }
   return false;
 }
@@ -458,7 +467,7 @@ function freezeGIF(imageNode) {
 }
 
 function getBlackList() {
-  let blacklist= GSettings.blacklist
+  let blacklist = GSettings.blacklist
     .replace(/ /g, '')
     .split(',');
 
@@ -491,13 +500,13 @@ function replaceAvatarInImageNode(imageNode, username) {
       const domain = '//cdn.everypony.ru/storage/00/28/16/2020/03/19/';
       const src = imageNode.getAttribute('src');
 
-      if (src.includes('male_48x48.png')) {
+      if (src.includes('female_48x48.png')) {
         imageNode.setAttribute('src', domain + '02dcb0e9c1.jpg');
-      } else if (src.includes('female_48x48.png')) {
+      } else if (src.includes('male_48x48.png')) {
         imageNode.setAttribute('src', domain + 'be9038d210.jpg');
-      } else if (src.includes('male_24x24.png')) {
-        imageNode.setAttribute('src', domain + 'b76b8f4e75.jpg');
       } else if (src.includes('female_24x24.png')) {
+        imageNode.setAttribute('src', domain + 'b76b8f4e75.jpg');
+      } else if (src.includes('male_24x24.png')) {
         imageNode.setAttribute('src', domain + 'f46f457af7.jpg');
       } else if (src.includes('female')) {
         imageNode.setAttribute('src', domain + '4d43849b81.jpg');
@@ -630,6 +639,17 @@ function replaceDonationAvatars() {
     replaceAvatarInImageNode(imageNode, username);
   });
 }
+// Замена аватаров в блоке "Пожертвования"
+function replaceProfileSettingsAvatar() {
+  const imageNode = document.querySelector('#avatar-img');
+  if (!imageNode) return;
+
+  const usernameNode = document.querySelector("#dropdown-user .username");
+  const username = usernameNode && usernameNode.textContent.trim();
+  if (!username) return;
+
+  replaceAvatarInImageNode(imageNode, username);
+}
 
 function replaceAvatarsOnCommentsRefresh() {
   const countCommentsNode = document.querySelector('#count-comments');
@@ -640,11 +660,140 @@ function replaceAvatarsOnCommentsRefresh() {
   });
 }
 
+function getFileBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      resolve(e.target.result);
+    };
+
+    reader.onerror = reject;
+  })
+}
+
+function getImageDimensions(url) {
+  const img = document.createElement('img');
+
+  const promise = new Promise((resolve, reject) => {
+    img.onload = () => {
+      // Natural size is the actual image size regardless of rendering.
+      // The 'normal' `width`/`height` are for the **rendered** size.
+      const width  = img.naturalWidth;
+      const height = img.naturalHeight;
+
+      // Resolve promise with the width and height
+      resolve({ width, height });
+    };
+
+    // Reject promise on error
+    img.onerror = reject;
+  });
+
+  // Setting the source makes it start downloading and eventually call `onload`
+  img.src = url;
+
+  return promise;
+}
+
+function initAvatarUpload() {
+  const avatarUploadNode = document.querySelector('#avatar-upload');
+  const avatarRemoveNode = document.querySelector('#avatar-remove');
+  const securityLsKey = document.querySelector('[name=security_ls_key]');
+  if (!securityLsKey || !avatarUploadNode) return;
+
+  if (avatarRemoveNode) {
+    avatarRemoveNode.style.display = 'none';
+  }
+
+  const input = document.createElement('input')
+  input.type = 'file';
+  input.accept = 'image/jpeg,image/png,image/gif';
+
+  input.addEventListener('change', () => {
+    if (!input.files[0]) return;
+
+    getFileBase64(input.files[0])
+      .then((base64) => {
+        return getImageDimensions(base64)
+      })
+      .then((dimensions) => {
+        if (dimensions.width > 100 || dimensions.height > 100) {
+          throw new Error('Максимальный размер картинки - 100x100 пикселей');
+        }
+
+        const uploadBody = new FormData();
+        uploadBody.append('img_file', input.files[0]);
+        uploadBody.append('security_ls_key', securityLsKey.value);
+
+        return fetch('https://tabun.everypony.ru/ajax/upload/image/', {
+          method: 'POST',
+          body: uploadBody,
+        });
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить автар, обратитесь к создателю скрипта. Код ошибки: UPLOAD_IMAGE_ERR');
+        }
+
+        return response.text();
+      })
+      .then((text) => {
+        if (!text) {
+          throw new Error('Не удалось загрузить автар, обратитесь к создателю скрипта. Код ошибки: UPLOAD_IMAGE_EMPTY');
+        }
+
+        text = text.replace(/&quot;/g, '"')
+          .replace(/\\\//g, '/');
+
+        const match = text.match(/src=\\"([^ ]+)\\"/);
+
+        if (!(match && match[1])) {
+          throw new Error('Не удалось загрузить автар, обратитесь к создателю скрипта. Код ошибки: NO_MATCH');
+        }
+
+        const postIdMatches = GSettings.remote.post.match(/(\d+).html$/);
+
+        if (!postIdMatches || !postIdMatches[1]) {
+          throw new Error('Не удалось загрузить автар, обратитесь к создателю скрипта. Код ошибки: NO_POST_ID');
+        }
+
+        const commentBody = new FormData();
+        commentBody.append('comment_text', '[avatar src="' + match[1] + '"]');
+        commentBody.append('reply', '0');
+        commentBody.append('cmt_target_id', postIdMatches[1]);
+        commentBody.append('security_ls_key', securityLsKey.value);
+
+        return fetch('https://tabun.everypony.ru/blog/ajaxaddcomment/', {
+          method: 'POST',
+          body: commentBody,
+        })
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить автар, обратитесь к создателю скрипта. Код ошибки: ADD_COMMENT_ERR');
+        }
+
+        localStorage.setItem('TabunAvaReborn_LastUpdate', '0');
+        window.location.reload();
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  });
+
+  avatarUploadNode.addEventListener('click', (e) => {
+    e.preventDefault();
+    input.click();
+  });
+}
+
 getSettings()
   .then((settings) => {
     GSettings = settings;
 
     initSettingsPage();
+    initAvatarUpload();
 
     loadAvatarsDictionary()
       .then(() => {
@@ -658,5 +807,6 @@ getSettings()
         replaceStreamAvatars();
         replacePeopleAvatars();
         replaceDonationAvatars();
+        replaceProfileSettingsAvatar();
       });
   })
