@@ -3,20 +3,21 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.3.1
 // @description  Установка своего аватара на Табуне!
-// @author       ( IntelRug && ( Kujivunia || Niko_de_Andjelo ) )
+// @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
 // @grant        none
 // @license MIT
 // ==/UserScript==
-// Я не умею писать скрипты, поэтому "TabunAva" начиная с версии 0.3 была полностью переписана IntelRug
-//IDENTICON: https://avatars.dicebear.com/styles/identicon
-const avaPostLinkGettingThere = "https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/AvaPostLink";
-const defaultAvaPostLink = "https://tabun.everypony.ru/blog/uniblog/203681.html";
-const everyponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
-const everyponyCdnStorageLink = '//cdn.everypony.ru/storage/';
 
-let avaDictionary = {};
-let settings = getSettings();
+// Tabun Swarm: https://tabun.everypony.ru/blog/uniblog/194538.html
+// IDENTICON: https://avatars.dicebear.com/styles/identicon
+
+const GRemoteSettingsLink = 'https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/settings.json';
+const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
+const GEveryponyCdnStorageLink = '//cdn.everypony.ru/storage/';
+
+let GAvaDictionary = {};
+let GSettings = {};
 
 function isTabunAvaSettingsPage() {
   return window.location.search.includes('tabun-ava');
@@ -66,7 +67,13 @@ function updateSettingsForm(settings = {}) {
   });
 }
 
+/**
+ *  Достает локальные настройки из localStorage и объединяет их с внешними настройками с гитхаба
+ *  Если пришло время обновлять базу, получает внешние настройки с гитхаба, иначе загружает их
+ *  сохранённую копию из localStorage
+ */
 function getSettings() {
+  // Достаём локальные настройки из localStorage
   let settings = {};
   const jsonString = localStorage.getItem('TabunAvaReborn_Settings');
   if (jsonString) {
@@ -77,18 +84,38 @@ function getSettings() {
     }
   }
 
-  return Object.assign({}, getDefaultSettings(), settings);
+  // Объединяем с настройками по-умолчанию, на случай, если в localStorage отсутствуют настройки
+  settings = Object.assign({}, getDefaultSettings(), settings);
+
+  const oldSettings = Object.assign({}, GSettings);
+  GSettings = settings;
+  const shouldUpdate = shouldUpdateAvatarsStorage();
+  GSettings = oldSettings;
+
+  // Получаем внешние настройки и объединяем с ними локальные настройки
+  if (shouldUpdate) {
+    return getRemoteSettings()
+      .then((remoteSettings) => {
+        settings.remote = remoteSettings;
+        localStorage.setItem('TabunAvaReborn_Settings', JSON.stringify(settings));
+        return settings;
+      });
+  } else {
+    if (!settings.remote) {
+      settings.remote = getDefaultRemoteSettings();
+    }
+    return Promise.resolve(settings);
+  }
 }
 
 function getRefreshMillis() {
-  const settings = getSettings();
-  let millis = 1000 * +settings.refresh_period; // 1 second
+  let millis = 1000 * +GSettings.refresh_period; // 1 second
 
-  if (settings.refresh_unit === 'minutes') {
+  if (GSettings.refresh_unit === 'minutes') {
     millis *= 60;
-  } else if (settings.refresh_unit === 'hours') {
+  } else if (GSettings.refresh_unit === 'hours') {
     millis *= 60 * 60;
-  } else if (settings.refresh_unit === 'days') {
+  } else if (GSettings.refresh_unit === 'days') {
     millis *= 60 * 60 * 24;
   }
 
@@ -96,7 +123,9 @@ function getRefreshMillis() {
 }
 
 function saveSettings() {
-  const settings = {};
+  const settings = {
+    remote: GSettings.remote || getDefaultRemoteSettings(),
+  };
 
   Object.keys(getDefaultSettings()).forEach((key) => {
     const node = document.getElementById(key);
@@ -113,12 +142,34 @@ function saveSettings() {
   alert('Настройки сохранены');
 }
 
+function getDefaultRemoteSettings() {
+  return {
+    post: 'https://tabun.everypony.ru/blog/uniblog/203681.html',
+    blacklist: [],
+  };
+}
+
+function getRemoteSettings() {
+  return fetch(GRemoteSettingsLink)
+    .then((response) => {
+      if (!response.ok) {
+        return getDefaultRemoteSettings();
+      }
+      return response.json();
+    })
+    .then((settings) => {
+      return Object.assign({}, getDefaultRemoteSettings(), settings)
+    })
+    .catch(() => {
+      return getDefaultRemoteSettings();
+    })
+}
+
 function replaceSettingsForm(formNode) {
   const node = formNode || document.querySelector('form.wrapper-content');
   node.innerHTML = getSettingsTemplate();
 
-  const settings = getSettings();
-  updateSettingsForm(settings);
+  updateSettingsForm(GSettings);
 
   const saveButtonNode = document.querySelector('#save_button');
   saveButtonNode.addEventListener('click', (event) => {
@@ -301,32 +352,14 @@ function initSettingsPage() {
   }
 }
 
-//Загрузка ссылки на пост с аватарами
-function getLinkToAvatarsDocument() {
-  return fetch(avaPostLinkGettingThere)
-    .then((response) => {
-      if (response.ok) {
-        return response.text();
-      } else {
-        return defaultAvaPostLink;
-      }
-    })
-    .then((avaPostLink) => {
-      return avaPostLink || defaultAvaPostLink;
-    });
-}
-
 function getAvatarsDocument() {
-  return getLinkToAvatarsDocument()
-    .then((link) => {
-      return fetch(link)
-        .then((response) => {
-          return response.text();
-        })
-        .then((text) => {
-          let domParser = new DOMParser();
-          return domParser.parseFromString(text, "text/html");
-        })
+  return fetch(GSettings.remote.post)
+    .then((response) => {
+      return response.text();
+    })
+    .then((text) => {
+      let domParser = new DOMParser();
+      return domParser.parseFromString(text, "text/html");
     });
 }
 
@@ -342,22 +375,27 @@ function fillAvatarsDictionary(avaDocument) {
     const imageNode = contentNode && contentNode.querySelector('.text > img');
 
     if (imageNode && imageNode.hasAttribute('src')) {
-      avaDictionary[username] = imageNode
+      GAvaDictionary[username] = imageNode
         .getAttribute('src')
-        .replace(everyponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
+        .replace(GEveryponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
     }
   });
 }
 
 // Сохранить список аватаров в локальное хранилище браузера
 function saveAvatarsDictionary() {
-  const jsonString = JSON.stringify(avaDictionary);
+  const jsonString = JSON.stringify(GAvaDictionary);
   localStorage.setItem('TabunAvaReborn_Avatars', jsonString);
   localStorage.setItem('TabunAvaReborn_LastUpdate', Date.now().toString());
 }
 
 function refreshAvatarsStorage() {
-  return getAvatarsDocument()
+  return getRemoteSettings()
+    .then((remoteSettings) => {
+      GSettings.remote = remoteSettings;
+      localStorage.setItem('TabunAvaReborn_Settings', JSON.stringify(GSettings));
+      return getAvatarsDocument();
+    })
     .then((avaDocument) => {
       fillAvatarsDictionary(avaDocument);
       saveAvatarsDictionary();
@@ -377,7 +415,7 @@ function loadAvatarsDictionary() {
     const jsonString = localStorage.getItem('TabunAvaReborn_Avatars');
     if (jsonString) {
       try {
-        avaDictionary = JSON.parse(jsonString);
+        GAvaDictionary = JSON.parse(jsonString);
         return Promise.resolve();
       } catch (e) {
         return refreshAvatarsStorage();
@@ -395,8 +433,8 @@ function getIdenticonAvatar(username) {
 }
 
 function getNewTabunAvatar(username) {
-  if (avaDictionary[username]) {
-    return everyponyCdnStorageLink + avaDictionary[username];
+  if (GAvaDictionary[username]) {
+    return GEveryponyCdnStorageLink + GAvaDictionary[username];
   }
   return false;
 }
@@ -419,10 +457,20 @@ function freezeGIF(imageNode) {
   }
 }
 
-function replaceAvatarInImageNode(imageNode, username) {
-  const ignore = settings.blacklist
+function getBlackList() {
+  let blacklist= GSettings.blacklist
     .replace(/ /g, '')
     .split(',');
+
+  if (Array.isArray(GSettings.remote && GSettings.remote.blacklist)) {
+    blacklist = blacklist.concat(GSettings.remote.blacklist);
+  }
+
+  return blacklist;
+}
+
+function replaceAvatarInImageNode(imageNode, username) {
+  const ignore = getBlackList();
 
   if (ignore.includes(username)) return;
 
@@ -430,16 +478,16 @@ function replaceAvatarInImageNode(imageNode, username) {
   if (tabunAvatar) {
     imageNode.setAttribute('src', tabunAvatar);
 
-    if (!settings.animated && isGIF(tabunAvatar)) {
+    if (!GSettings.animated && isGIF(tabunAvatar)) {
       freezeGIF(imageNode);
     }
   } else if (
     !imageNode.getAttribute('src')
     || isDefaultAvatar(imageNode.getAttribute('src'))
   ) {
-    if (settings.faceless === 'identicon') {
+    if (GSettings.faceless === 'identicon') {
       imageNode.setAttribute('src', getIdenticonAvatar(username));
-    } else if (settings.faceless === 'swarm') {
+    } else if (GSettings.faceless === 'swarm') {
       const domain = '//cdn.everypony.ru/storage/00/28/16/2020/03/19/';
       const src = imageNode.getAttribute('src');
 
@@ -456,8 +504,8 @@ function replaceAvatarInImageNode(imageNode, username) {
       } else if (src.includes('male')) {
         imageNode.setAttribute('src', domain + '4dac2ae27e.jpg');
       }
-    } else if (settings.faceless === 'other' && settings.faceless_picture) {
-      imageNode.setAttribute('src', settings.faceless_picture);
+    } else if (GSettings.faceless === 'other' && GSettings.faceless_picture) {
+      imageNode.setAttribute('src', GSettings.faceless_picture);
     }
   }
 }
@@ -592,18 +640,23 @@ function replaceAvatarsOnCommentsRefresh() {
   });
 }
 
-initSettingsPage();
+getSettings()
+  .then((settings) => {
+    GSettings = settings;
 
-loadAvatarsDictionary()
-  .then(() => {
-    replaceAvatarsOnCommentsRefresh();
+    initSettingsPage();
 
-    replaceHeaderAvatar();
-    replaceCommentAvatars();
-    replaceTopicAuthorAvatars();
-    replaceProfileAvatar();
-    replaceProfileFriendAvatars();
-    replaceStreamAvatars();
-    replacePeopleAvatars();
-    replaceDonationAvatars();
-  });
+    loadAvatarsDictionary()
+      .then(() => {
+        replaceAvatarsOnCommentsRefresh();
+
+        replaceHeaderAvatar();
+        replaceCommentAvatars();
+        replaceTopicAuthorAvatars();
+        replaceProfileAvatar();
+        replaceProfileFriendAvatars();
+        replaceStreamAvatars();
+        replacePeopleAvatars();
+        replaceDonationAvatars();
+      });
+  })
