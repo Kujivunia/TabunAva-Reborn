@@ -113,9 +113,9 @@ function saveSettings() {
   alert('Настройки сохранены');
 }
 
-function replaceSettingsForm() {
-  const formNode = document.querySelector('form.wrapper-content');
-  formNode.innerHTML = getSettingsTemplate();
+function replaceSettingsForm(formNode) {
+  const node = formNode || document.querySelector('form.wrapper-content');
+  node.innerHTML = getSettingsTemplate();
 
   const settings = getSettings();
   updateSettingsForm(settings);
@@ -136,12 +136,52 @@ function replaceSettingsForm() {
   });
 }
 
+function getSettingsButtonTemplate() {
+  return `
+    <style>
+      .ta-button {
+        height: 25px;
+        display: inline-block;
+        width: 25px;
+        vertical-align: bottom;
+        background: linear-gradient(0deg, #f4f4f4, #f9fbfb);
+        color: #8a9198;
+        border-radius: 4px;
+        border: 1px solid #e3e6eb;
+        box-sizing: border-box;
+        position: relative;
+        bottom: -3px;
+      }
+      
+      .ta-button > svg {
+        fill: currentColor;
+        width: 18px;
+        height: 18px;
+        margin-top: 3px;
+        margin-left: 3px;
+      }
+      
+      .ta-button:hover {
+        background: linear-gradient(0deg, #23b2fe, #4cc3ff);
+        border-color: #28adea;
+        color: #ffffff;
+      }
+    </style>
+    <a class="ta-button">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
+        <path d="M0 0h24v24H0V0z" fill="none"></path>
+        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"></path>
+      </svg>
+    </a>
+  `;
+}
+
 function getSettingsTemplate() {
   return `
     <div class="wrapper-content">
       <dl class="form-item">
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>
-        <select name="faceless" id="faceless" class="input-width-250">
+        <select name="faceless" id="faceless" class="input-width-200">
           <option value="default" selected="">Не изменять</option>
           <option value="identicon">IDENTICON</option>
           <option value="other">Своя картинка</option>
@@ -155,7 +195,7 @@ function getSettingsTemplate() {
           type="text"
           name="faceless_picture"
           id="faceless_picture"
-          class="input-text input-width-250"
+          class="input-text input-width-200"
           placeholder="https://..."
         >
       </dl>
@@ -166,7 +206,7 @@ function getSettingsTemplate() {
         <textarea
           name="blacklist"
           id="blacklist"
-          class="input-text input-width-250"
+          class="input-text input-width-200"
           rows="2"
           placeholder="Pony, Pony2, Pony3"
           style="resize: vertical"
@@ -182,12 +222,12 @@ function getSettingsTemplate() {
           id="refresh_period"
           class="input-text"
           placeholder="30"
-          style="width: 50px; margin-right: 4px;"
+          style="width: 36px; margin-right: 4px;"
         >
         <select
           name="refresh_unit"
           id="refresh_unit"
-          style="width: 80px; margin-right: 4px;"
+          style="width: 70px; margin-right: 4px;"
         >
           <option value="minutes" selected="">минут</option>
           <option value="hours">часов</option>
@@ -198,7 +238,7 @@ function getSettingsTemplate() {
           id="refresh_button"
           name="refresh_button"
           class="button button-primary"
-          style="width: 106px; height: 27px; margin-top: -2px;"
+          style="width: 80px; height: 26px; margin-top: -4px;"
         >
           Обновить
         </button>
@@ -215,6 +255,42 @@ function getSettingsTemplate() {
 }
 
 function initSettingsPage() {
+  const widemodeNode = document.querySelector('#widemode');
+  widemodeNode.innerHTML += getSettingsButtonTemplate();
+
+  const popup = document.createElement('div');
+  popup.classList.add('ta-popup');
+  popup.style.display = 'none';
+  popup.innerHTML = `
+      <style>
+        .ta-popup {
+          position: fixed;
+          bottom: 50px;
+          right: 0;
+          width: 276px;
+          z-index: 999;
+          background: #ffffff;
+          border-radius: 10px 0 0 10px;
+          padding: 16px;
+          box-sizing: border-box;
+          border: 1px solid #ccc;
+        }
+      </style>
+      <div id="settings-popup-content"></div>
+    `
+  document.body.appendChild(popup);
+
+  widemodeNode.addEventListener('click', () => {
+    if (popup.style.display === 'none') {
+      popup.style.display = 'block';
+    } else {
+      popup.style.display = 'none';
+    }
+  });
+
+  const settingsNode = document.querySelector('#settings-popup-content');
+  replaceSettingsForm(settingsNode);
+
   if (window.location.href.includes('/settings')) {
     addLinkToNavigation();
 
