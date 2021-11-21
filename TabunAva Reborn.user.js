@@ -184,6 +184,7 @@ function getSettingsTemplate() {
         <select name="faceless" id="faceless" class="input-width-200">
           <option value="default" selected="">Не изменять</option>
           <option value="identicon">IDENTICON</option>
+          <option value="swarm">Swarm</option>
           <option value="other">Своя картинка</option>
         </select>
       </dl>
@@ -438,6 +439,23 @@ function replaceAvatarInImageNode(imageNode, username) {
   ) {
     if (settings.faceless === 'identicon') {
       imageNode.setAttribute('src', getIdenticonAvatar(username));
+    } else if (settings.faceless === 'swarm') {
+      const domain = '//cdn.everypony.ru/storage/00/28/16/2020/03/19/';
+      const src = imageNode.getAttribute('src');
+
+      if (src.includes('male_48x48.png')) {
+        imageNode.setAttribute('src', domain + '02dcb0e9c1.jpg');
+      } else if (src.includes('female_48x48.png')) {
+        imageNode.setAttribute('src', domain + 'be9038d210.jpg');
+      } else if (src.includes('male_24x24.png')) {
+        imageNode.setAttribute('src', domain + 'b76b8f4e75.jpg');
+      } else if (src.includes('female_24x24.png')) {
+        imageNode.setAttribute('src', domain + 'f46f457af7.jpg');
+      } else if (src.includes('female')) {
+        imageNode.setAttribute('src', domain + '4d43849b81.jpg');
+      } else if (src.includes('male')) {
+        imageNode.setAttribute('src', domain + '4dac2ae27e.jpg');
+      }
     } else if (settings.faceless === 'other' && settings.faceless_picture) {
       imageNode.setAttribute('src', settings.faceless_picture);
     }
