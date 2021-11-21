@@ -568,7 +568,7 @@ function replaceTopicAuthorAvatars() {
 
 // Замена аватаров в комментариях
 function replaceCommentAvatars() {
-  const commentNodes = document.querySelectorAll('#comments .comment');
+  const commentNodes = document.querySelectorAll('.comment');
   commentNodes.forEach((commentNode) => {
     const authorNode = commentNode.querySelector('.comment-author');
     const username = authorNode && authorNode.textContent.trim();
