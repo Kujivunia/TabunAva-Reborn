@@ -166,8 +166,10 @@ function getRemoteSettings() {
 }
 
 function replaceSettingsForm(formNode) {
+  const securityLsKey = document.querySelector('[name=security_ls_key]');
   const node = formNode || document.querySelector('form.wrapper-content');
   node.innerHTML = getSettingsTemplate();
+  node.innerHTML += '<input type="hidden" name="security_ls_key" value="' + securityLsKey.value + '">';
 
   updateSettingsForm(GSettings);
 
@@ -231,7 +233,7 @@ function getSettingsTemplate() {
   return `
     <div class="wrapper-content">
       <dl class="form-item">
-        <a href="https://tabun.everypony.ru/settings/profile/" id="ta-popup-avatar-upload">Загрузить аватар</a>
+        <a href="https://tabun.everypony.ru/settings/profile/" id="avatar-upload">Загрузить аватар</a>
       </dl>
       <dl class="form-item">
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>
@@ -306,6 +308,16 @@ function getSettingsTemplate() {
       </dl>
       <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>
     </div>
+    <style>
+      form > .wrapper-content > .form-item #avatar-upload {
+        font-size: 18px;
+        line-height: 1.4;
+        font-weight: 600;
+        color: indianred;
+        padding: 10px 0;
+        display: block;
+      }
+    </style>
 `;
 }
 
