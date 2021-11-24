@@ -395,13 +395,12 @@ function fillAvatarsDictionary(avaDocument) {
     if (!username) return;
 
     const contentNode = commentNode.querySelector('.comment-content');
-    const textNode = contentNode && contentNode.querySelector('.text');
+    const imageNode = contentNode && contentNode.querySelector('.text > img');
 
-    if (textNode && textNode.textContent) {
-      const match = textNode.textContent.match(/\[avatar.*src="([^ ]+)".*]/);
-      if (match && match[1]) {
-        GAvaDictionary[username] = match[1].replace(GEveryponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
-      }
+    if (imageNode && imageNode.hasAttribute('src')) {
+      GAvaDictionary[username] = imageNode
+        .getAttribute('src')
+        .replace(GEveryponyCdnStorageRegex, ''); // Сокращаем количество сохраняемых символов
     }
   });
 }
@@ -775,7 +774,7 @@ function initAvatarUpload() {
         }
 
         const commentBody = new FormData();
-        commentBody.append('comment_text', '[avatar src="' + match[1] + '"]');
+        commentBody.append('comment_text', '<img src="' + match[1] + '" alt="avatar">');
         commentBody.append('reply', '0');
         commentBody.append('cmt_target_id', postIdMatches[1]);
         commentBody.append('security_ls_key', securityLsKey.value);
