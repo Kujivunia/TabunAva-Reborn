@@ -193,135 +193,135 @@ function replaceSettingsForm(formNode) {
 }
 
 function getSettingsButtonTemplate() {
-  return `
-    <style>
-      .ta-button {
-        height: 25px;
-        display: inline-block;
-        width: 25px;
-        vertical-align: bottom;
-        background: linear-gradient(0deg, #f4f4f4, #f9fbfb);
-        color: #8a9198;
-        border-radius: 4px;
-        border: 1px solid #e3e6eb;
-        box-sizing: border-box;
-        position: relative;
-        bottom: -3px;
-      }
-      
-      .ta-button > svg {
-        fill: currentColor;
-        width: 18px;
-        height: 18px;
-        margin-top: 3px;
-        margin-left: 3px;
-      }
-      
-      .ta-button:hover {
-        background: linear-gradient(0deg, #23b2fe, #4cc3ff);
-        border-color: #28adea;
-        color: #ffffff;
-      }
-    </style>
-    <a class="ta-button">
-      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">
-        <path d="M0 0h24v24H0V0z" fill="none"></path>
-        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"></path>
-      </svg>
-    </a>
-  `;
+  return '\
+    <style>\
+      .ta-button {\
+        height: 25px;\
+        display: inline-block;\
+        width: 25px;\
+        vertical-align: bottom;\
+        background: linear-gradient(0deg, #f4f4f4, #f9fbfb);\
+        color: #8a9198;\
+        border-radius: 4px;\
+        border: 1px solid #e3e6eb;\
+        box-sizing: border-box;\
+        position: relative;\
+        bottom: -3px;\
+      }\
+      \
+      .ta-button > svg {\
+        fill: currentColor;\
+        width: 18px;\
+        height: 18px;\
+        margin-top: 3px;\
+        margin-left: 3px;\
+      }\
+      \
+      .ta-button:hover {\
+        background: linear-gradient(0deg, #23b2fe, #4cc3ff);\
+        border-color: #28adea;\
+        color: #ffffff;\
+      }\
+    </style>\
+    <a class="ta-button">\
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px">\
+        <path d="M0 0h24v24H0V0z" fill="none"></path>\
+        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"></path>\
+      </svg>\
+    </a>\
+  ';
 }
 
 function getSettingsTemplate() {
-  return `
-    <div class="wrapper-content">
-      <dl class="form-item">
-        <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>
-      </dl>
-      <dl class="form-item">
-        <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>
-        <select name="faceless" id="faceless" class="input-width-200">
-          <option value="default" selected="">Не изменять</option>
-          <option value="identicon">IDENTICON</option>
-          <option value="swarm">Swarm</option>
-          <option value="other">Своя картинка</option>
-        </select>
-      </dl>
-      <dl class="form-item">
-        <label for="faceless_picture" style="margin-bottom: 7px">
-          Своя картинка безликого пони:
-        </label>
-        <input
-          type="text"
-          name="faceless_picture"
-          id="faceless_picture"
-          class="input-text input-width-200"
-          placeholder="https://..."
-        >
-      </dl>
-      <dl class="form-item">
-        <label for="blacklist" style="margin-bottom: 7px">
-          Чёрный список:
-        </label>
-        <textarea
-          name="blacklist"
-          id="blacklist"
-          class="input-text input-width-200"
-          rows="2"
-          placeholder="Pony, Pony2, Pony3"
-          style="resize: vertical"
-        ></textarea>
-      </dl>
-      <dl class="form-item">
-        <label for="refresh_period" style="margin-bottom: 7px">
-          Частота обновления базы аватарок:
-        </label>
-        <input
-          type="text"
-          name="refresh_period"
-          id="refresh_period"
-          class="input-text"
-          placeholder="30"
-          style="width: 36px; margin-right: 4px;"
-        >
-        <select
-          name="refresh_unit"
-          id="refresh_unit"
-          style="width: 70px; margin-right: 4px;"
-        >
-          <option value="minutes" selected="">минут</option>
-          <option value="hours">часов</option>
-          <option value="days">дней</option>
-        </select>
-        <button
-          type="submit"
-          id="refresh_button"
-          name="refresh_button"
-          class="button button-primary"
-          style="width: 80px; height: 26px; margin-top: -4px;"
-        >
-          Обновить
-        </button>
-      </dl>
-      <dl class="form-item">
-        <label>
-          <input type="checkbox" id="animated" name="animated" value="1" class="input-checkbox">
-          анимированные аватарки
-        </label>
-      </dl>
-      <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>
-    </div>
-    <style>
-      form > .wrapper-content > .form-item #avatar-upload {
-        font-size: 18px;
-        line-height: 1.4;
-        font-weight: 600;
-        color: indianred;
-        padding: 10px 0;
-        display: block;
-      }
-    </style>
-`;
+  return '\
+    <div class="wrapper-content">\
+      <dl class="form-item">\
+        <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>\
+        <select name="faceless" id="faceless" class="input-width-200">\
+          <option value="default" selected="">Не изменять</option>\
+          <option value="identicon">IDENTICON</option>\
+          <option value="swarm">Swarm</option>\
+          <option value="other">Своя картинка</option>\
+        </select>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="faceless_picture" style="margin-bottom: 7px">\
+          Своя картинка безликого пони:\
+        </label>\
+        <input\
+          type="text"\
+          name="faceless_picture"\
+          id="faceless_picture"\
+          class="input-text input-width-200"\
+          placeholder="https://..."\
+        >\
+      </dl>\
+      <dl class="form-item">\
+        <label for="blacklist" style="margin-bottom: 7px">\
+          Чёрный список:\
+        </label>\
+        <textarea\
+          name="blacklist"\
+          id="blacklist"\
+          class="input-text input-width-200"\
+          rows="2"\
+          placeholder="Pony, Pony2, Pony3"\
+          style="resize: vertical"\
+        ></textarea>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="refresh_period" style="margin-bottom: 7px">\
+          Частота обновления базы аватарок:\
+        </label>\
+        <input\
+          type="text"\
+          name="refresh_period"\
+          id="refresh_period"\
+          class="input-text"\
+          placeholder="30"\
+          style="width: 36px; margin-right: 4px;"\
+        >\
+        <select\
+          name="refresh_unit"\
+          id="refresh_unit"\
+          style="width: 70px; margin-right: 4px;"\
+        >\
+          <option value="minutes" selected="">минут</option>\
+          <option value="hours">часов</option>\
+          <option value="days">дней</option>\
+        </select>\
+        <button\
+          type="submit"\
+          id="refresh_button"\
+          name="refresh_button"\
+          class="button button-primary"\
+          style="width: 80px; height: 26px; margin-top: -4px;"\
+        >\
+          Обновить\
+        </button>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="animated" name="animated" value="1" class="input-checkbox">\
+          анимированные аватарки\
+        </label>\
+      </dl>\
+      <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>\
+    </div>\
+    <style>\
+      form > .wrapper-content > .form-item #avatar-upload {\
+        font-size: 18px;\
+        line-height: 1.4;\
+        font-weight: 600;\
+        color: indianred;\
+        padding: 10px 0;\
+        display: block;\
+      }\
+    </style>\
+';
 }
 
 function initSettingsPage() {
@@ -334,23 +334,23 @@ function initSettingsPage() {
     const popup = document.createElement('div');
     popup.classList.add('ta-popup');
     popup.style.display = 'none';
-    popup.innerHTML = `
-      <style>
-        .ta-popup {
-          position: fixed;
-          bottom: 50px;
-          right: 0;
-          width: 276px;
-          z-index: 999;
-          background: #ffffff;
-          border-radius: 10px 0 0 10px;
-          padding: 16px;
-          box-sizing: border-box;
-          border: 1px solid #ccc;
-        }
-      </style>
-      <div id="settings-popup-content"></div>
-    `
+    popup.innerHTML = '\
+      <style>\
+        .ta-popup {\
+          position: fixed;\
+          bottom: 50px;\
+          right: 0;\
+          width: 276px;\
+          z-index: 999;\
+          background: #ffffff;\
+          border-radius: 10px 0 0 10px;\
+          padding: 16px;\
+          box-sizing: border-box;\
+          border: 1px solid #ccc;\
+        }\
+      </style>\
+      <div id="settings-popup-content"></div>\
+    ';
     document.body.appendChild(popup);
 
     widemodeNode.querySelector('.ta-button')
@@ -452,7 +452,7 @@ function isDefaultAvatar(link) {
 }
 
 function getIdenticonAvatar(username) {
-  return `https://avatars.dicebear.com/api/identicon/${username}.svg?scale=100&size=48`;
+  return 'https://avatars.dicebear.com/api/identicon/' + username + '.svg?scale=100&size=48';
 }
 
 function getNewTabunAvatar(username) {
@@ -693,7 +693,7 @@ function getImageDimensions(url) {
   const promise = new Promise((resolve, reject) => {
     img.onload = () => {
       // Natural size is the actual image size regardless of rendering.
-      // The 'normal' `width`/`height` are for the **rendered** size.
+      // The 'normal' width/height are for the **rendered** size.
       const width  = img.naturalWidth;
       const height = img.naturalHeight;
 
@@ -705,7 +705,7 @@ function getImageDimensions(url) {
     img.onerror = reject;
   });
 
-  // Setting the source makes it start downloading and eventually call `onload`
+  // Setting the source makes it start downloading and eventually call onload
   img.src = url;
 
   return promise;
