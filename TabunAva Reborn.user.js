@@ -168,8 +168,11 @@ function getRemoteSettings() {
 function replaceSettingsForm(formNode) {
   const securityLsKey = document.querySelector('[name=security_ls_key]');
   const node = formNode || document.querySelector('form.wrapper-content');
+
   node.innerHTML = getSettingsTemplate();
-  node.innerHTML += '<input type="hidden" name="security_ls_key" value="' + securityLsKey.value + '">';
+  if (securityLsKey) {
+    node.innerHTML += '<input type="hidden" name="security_ls_key" value="' + securityLsKey.value + '">';
+  }
 
   updateSettingsForm(GSettings);
 
@@ -324,7 +327,9 @@ function getSettingsTemplate() {
 function initSettingsPage() {
   if (!isTabunAvaSettingsPage()) {
     const widemodeNode = document.querySelector('#widemode');
-    widemodeNode.innerHTML += getSettingsButtonTemplate();
+    const span = document.createElement('span');
+    span.innerHTML = getSettingsButtonTemplate().trim();
+    widemodeNode.appendChild(span);
 
     const popup = document.createElement('div');
     popup.classList.add('ta-popup');
@@ -348,7 +353,8 @@ function initSettingsPage() {
     `
     document.body.appendChild(popup);
 
-    widemodeNode.addEventListener('click', () => {
+    widemodeNode.querySelector('.ta-button')
+      .addEventListener('click', () => {
       if (popup.style.display === 'none') {
         popup.style.display = 'block';
       } else {
