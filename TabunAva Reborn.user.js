@@ -236,7 +236,7 @@ function getSettingsTemplate() {
   return `
     <div class="wrapper-content">
       <dl class="form-item">
-        <a href="https://tabun.everypony.ru/settings/profile/" id="avatar-upload">Загрузить аватар</a>
+        <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>
       </dl>
       <dl class="form-item">
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>
