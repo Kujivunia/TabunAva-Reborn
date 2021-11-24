@@ -387,6 +387,7 @@ function getAvatarsDocument() {
 }
 
 function fillAvatarsDictionary(avaDocument) {
+  GAvaDictionary = {};
   const commentNodes = avaDocument.querySelectorAll('#comments .comment');
 
   commentNodes.forEach((commentNode) => {
