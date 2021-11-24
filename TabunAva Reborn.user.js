@@ -144,7 +144,7 @@ function saveSettings() {
 
 function getDefaultRemoteSettings() {
   return {
-    post: 'https://tabun.everypony.ru/blog/uniblog/203768.html',
+    post: 'https://tabun.everypony.ru/blog/TabunAva/203681.html',
     blacklist: [],
   };
 }
