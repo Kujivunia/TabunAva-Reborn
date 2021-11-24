@@ -511,13 +511,13 @@ function replaceAvatarInImageNode(imageNode, username) {
       const src = imageNode.getAttribute('src');
 
       if (src.includes('female_48x48.png')) {
-        imageNode.setAttribute('src', domain + '02dcb0e9c1.jpg');
-      } else if (src.includes('male_48x48.png')) {
         imageNode.setAttribute('src', domain + 'be9038d210.jpg');
+      } else if (src.includes('male_48x48.png')) {
+        imageNode.setAttribute('src', domain + '02dcb0e9c1.jpg');
       } else if (src.includes('female_24x24.png')) {
-        imageNode.setAttribute('src', domain + 'b76b8f4e75.jpg');
-      } else if (src.includes('male_24x24.png')) {
         imageNode.setAttribute('src', domain + 'f46f457af7.jpg');
+      } else if (src.includes('male_24x24.png')) {
+        imageNode.setAttribute('src', domain + 'b76b8f4e75.jpg');
       } else if (src.includes('female')) {
         imageNode.setAttribute('src', domain + '4d43849b81.jpg');
       } else if (src.includes('male')) {
