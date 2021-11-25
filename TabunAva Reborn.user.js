@@ -158,7 +158,7 @@ function getRemoteSettings() {
       return response.json();
     })
     .then((settings) => {
-      return Object.assign({}, getDefaultRemoteSettings(), settings)
+      return Object.assign({}, getDefaultRemoteSettings(), settings);
     })
     .catch(() => {
       return getDefaultRemoteSettings();
