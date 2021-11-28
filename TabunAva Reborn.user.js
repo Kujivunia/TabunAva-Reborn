@@ -46,7 +46,7 @@ function getDefaultSettings() {
     faceless: 'default',
     faceless_picture: '',
     blacklist: '',
-    header_text: 'Да, это — Табун!',
+    header_text: '',
     refresh_period: 10,
     refresh_unit: 'minutes',
     animated: true,
@@ -269,6 +269,7 @@ function getSettingsTemplate() {
           name="header_text"\
           id="header_text"\
           class="input-text input-width-200"\
+          placeholder="Да, это — Табун!"\
         >\
       </dl>\
       <dl class="form-item">\
@@ -817,7 +818,12 @@ function initAvatarUpload() {
 }
 
 function replaceHeaderText() {
-  document.querySelector('#logolink a').text = GSettings.header_text;
+  if (GSettings.header_text) {
+    const logoNode = document.querySelector('#logolink a');
+    if (!logoNode) return;
+
+    logoNode.text = GSettings.header_text;
+  }
 }
 
 getSettings()
