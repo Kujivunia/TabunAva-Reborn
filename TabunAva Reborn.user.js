@@ -46,6 +46,7 @@ function getDefaultSettings() {
     faceless: 'default',
     faceless_picture: '',
     blacklist: '',
+    header_text: 'Да, это — Табун!',
     refresh_period: 10,
     refresh_unit: 'minutes',
     animated: true,
@@ -257,6 +258,17 @@ function getSettingsTemplate() {
           id="faceless_picture"\
           class="input-text input-width-200"\
           placeholder="https://..."\
+        >\
+      </dl>\
+      <dl class="form-item">\
+        <label for="header_text" style="margin-bottom: 7px">\
+          Заголовок Табуна:\
+        </label>\
+        <input\
+          type="text"\
+          name="header_text"\
+          id="header_text"\
+          class="input-text input-width-200"\
         >\
       </dl>\
       <dl class="form-item">\
@@ -804,12 +816,18 @@ function initAvatarUpload() {
   });
 }
 
+function replaceHeaderText() {
+  document.querySelector('#logolink a').text = GSettings.header_text;
+}
+
 getSettings()
   .then((settings) => {
     GSettings = settings;
 
     initSettingsPage();
     initAvatarUpload();
+
+    replaceHeaderText();
 
     loadAvatarsDictionary()
       .then(() => {
