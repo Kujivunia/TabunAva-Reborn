@@ -45,6 +45,7 @@ function getDefaultSettings() {
   return {
     faceless: 'default',
     faceless_picture: '',
+    faceless_picture_f: '',
     blacklist: '',
     header_text: '',
     refresh_period: 10,
@@ -256,6 +257,18 @@ function getSettingsTemplate() {
           type="text"\
           name="faceless_picture"\
           id="faceless_picture"\
+          class="input-text input-width-200"\
+          placeholder="https://..."\
+        >\
+      </dl>\
+      <dl class="form-item">\
+        <label for="faceless_picture_f" style="margin-bottom: 7px">\
+            Своя картинка безликой кобылки (если отличается от предыдущей):\
+        </label>\
+        <input\
+          type="text"\
+          name="faceless_picture_f"\
+          id="faceless_picture_f"\
           class="input-text input-width-200"\
           placeholder="https://..."\
         >\
@@ -543,7 +556,12 @@ function replaceAvatarInImageNode(imageNode, username) {
         imageNode.setAttribute('src', domain + '4dac2ae27e.jpg');
       }
     } else if (GSettings.faceless === 'other' && GSettings.faceless_picture) {
-      imageNode.setAttribute('src', GSettings.faceless_picture);
+      if (imageNode.getAttribute('src').includes('female') && GSettings.faceless_picture_f) {
+        imageNode.setAttribute('src', GSettings.faceless_picture_f);
+      }
+      else {
+        imageNode.setAttribute('src', GSettings.faceless_picture);
+      }
     }
   }
 }
