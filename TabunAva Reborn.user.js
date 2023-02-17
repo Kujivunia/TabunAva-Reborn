@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.2.0
+// @version      1.3.0
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -629,10 +629,8 @@ function replaceCommentAvatars() {
     const authorNode = commentNode.querySelector('.comment-author');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
-
-    const imageNode = authorNode && authorNode.querySelector('img');
+    const imageNode = commentNode.querySelector('img.comment-avatar');
     if (!imageNode) return;
-
     replaceAvatarInImageNode(imageNode, username);
   });
 }
