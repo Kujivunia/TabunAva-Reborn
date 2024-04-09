@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.3.0
+// @version      1.4.0
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -51,6 +51,7 @@ function getDefaultSettings() {
     refresh_period: 10,
     refresh_unit: 'minutes',
     animated: true,
+    priority: true,
   };
 }
 
@@ -335,6 +336,12 @@ function getSettingsTemplate() {
           анимированные аватарки\
         </label>\
       </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="priority" name="priority" value="1" class="input-checkbox">\
+          приоритет аватарок из темы над аватарками из профиля\
+        </label>\
+      </dl>\
       <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>\
     </div>\
     <style>\
@@ -479,7 +486,7 @@ function isDefaultAvatar(link) {
 }
 
 function getIdenticonAvatar(username) {
-  return 'https://avatars.dicebear.com/api/identicon/' + username + '.svg?scale=100&size=48';
+  return 'https://api.dicebear.com/8.x/identicon/svg?seed=' + username + '&scale=100&size=48';
 }
 
 function getNewTabunAvatar(username) {
@@ -524,13 +531,14 @@ function getBlackList() {
 
 function replaceAvatarInImageNode(imageNode, username) {
   const ignore = getBlackList();
-
   const tabunAvatar = getNewTabunAvatar(username);
   if (tabunAvatar && !ignore.includes(username)) {
-    imageNode.setAttribute('src', tabunAvatar);
+    if(GSettings.priority || !imageNode.getAttribute('src') || isDefaultAvatar(imageNode.getAttribute('src'))) {
+      imageNode.setAttribute('src', tabunAvatar);
 
-    if (!GSettings.animated && isGIF(tabunAvatar)) {
-      freezeGIF(imageNode);
+      if (!GSettings.animated && isGIF(tabunAvatar)) {
+        freezeGIF(imageNode);
+      }
     }
   } else if (
     !imageNode.getAttribute('src')
@@ -580,7 +588,7 @@ function replaceHeaderAvatar() {
 
 // Замена аватара пользователя в профиле
 function replaceProfileAvatar() {
-  const imageNode = document.querySelector('.profile-info-about img');
+  const imageNode = document.querySelector('.profile img.avatar');
   if (!imageNode) return;
 
   const usernameNode = document.querySelector(".profile [itemprop=nickname]");
@@ -703,6 +711,17 @@ function replaceAvatarsOnCommentsRefresh() {
   countCommentsNode.addEventListener('DOMSubtreeModified', () => {
     replaceCommentAvatars();
   });
+}
+
+function replaceAvatarsOnRepliesRefresh() {
+  const avatarNodes = document.querySelectorAll('.tabun-replies-container img.comment-avatar')
+  avatarNodes.forEach((imageNode) => {
+    const authorNode = imageNode.parentElement
+    if(!authorNode || !authorNode.getAttribute('href')) return;
+    const username = authorNode.getAttribute('href').replace('/profile/', '').replace('/', '')
+    if (!username) return;
+    replaceAvatarInImageNode(imageNode, username);
+  })
 }
 
 function getFileBase64(file) {
@@ -853,7 +872,9 @@ getSettings()
 
     loadAvatarsDictionary()
       .then(() => {
-        replaceAvatarsOnCommentsRefresh();
+
+        new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(document.querySelector('#content-wrapper'), {childList: true, subtree: true});
+        new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(document.querySelector('.tabun-replies-container'), {childList: true, subtree: true});
 
         replaceHeaderAvatar();
         replaceCommentAvatars();
