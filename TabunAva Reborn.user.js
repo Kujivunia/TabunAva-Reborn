@@ -580,7 +580,7 @@ function replaceHeaderAvatar() {
 
 // Замена аватара пользователя в профиле
 function replaceProfileAvatar() {
-  const imageNode = document.querySelector('.profile-info-about img');
+  const imageNode = document.querySelector('.profile img.avatar');
   if (!imageNode) return;
 
   const usernameNode = document.querySelector(".profile [itemprop=nickname]");
