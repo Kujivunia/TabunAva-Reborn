@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.4.0
+// @version      1.4.1
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -872,9 +872,10 @@ getSettings()
 
     loadAvatarsDictionary()
       .then(() => {
-
-        new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(document.querySelector('#content-wrapper'), {childList: true, subtree: true});
-        new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(document.querySelector('.tabun-replies-container'), {childList: true, subtree: true});
+        var commentsNode = document.querySelector('#content-wrapper');
+        var repliesNode = document.querySelector('.tabun-replies-container');
+        if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
+        if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
 
         replaceHeaderAvatar();
         replaceCommentAvatars();
