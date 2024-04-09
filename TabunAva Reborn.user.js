@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.4.1
+// @version      1.5.0
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -52,6 +52,8 @@ function getDefaultSettings() {
     refresh_unit: 'minutes',
     animated: true,
     priority: true,
+    noregularava: false,
+    notabunava: false,
   };
 }
 
@@ -342,6 +344,18 @@ function getSettingsTemplate() {
           приоритет аватарок из темы над аватарками из профиля\
         </label>\
       </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="noregularava" name="priority" value="0" class="input-checkbox">\
+          игнорировать выставленный аватар табуна\
+        </label>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="notabunava" name="priority" value="0" class="input-checkbox">\
+          игнорировать выставленный аватар TabunAva\
+        </label>\
+      </dl>\
       <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>\
     </div>\
     <style>\
@@ -482,6 +496,7 @@ function loadAvatarsDictionary() {
 }
 
 function isDefaultAvatar(link) {
+  if(GSettings.noregularava) return true;
   return /(\/local\/avatar_male_)/.test(link) || /(\/local\/avatar_female)/.test(link);
 }
 
@@ -490,6 +505,7 @@ function getIdenticonAvatar(username) {
 }
 
 function getNewTabunAvatar(username) {
+  if(GSettings.notabunava) return false;
   if (GAvaDictionary[username]) {
     if (!/^(https?:)?\/\//.test(GAvaDictionary[username])) {
       return GEveryponyCdnStorageLink + GAvaDictionary[username];
