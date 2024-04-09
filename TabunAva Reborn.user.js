@@ -705,6 +705,17 @@ function replaceAvatarsOnCommentsRefresh() {
   });
 }
 
+function replaceAvatarsOnRepliesRefresh() {
+  const avatarNodes = document.querySelectorAll('.tabun-replies-container img.comment-avatar')
+  avatarNodes.forEach((imageNode) => {
+    const authorNode = imageNode.parentElement
+    if(!authorNode || !authorNode.getAttribute('href')) return;
+    const username = authorNode.getAttribute('href').replace('/profile/', '').replace('/', '')
+    if (!username) return;
+    replaceAvatarInImageNode(imageNode, username);
+  })
+}
+
 function getFileBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -853,7 +864,9 @@ getSettings()
 
     loadAvatarsDictionary()
       .then(() => {
-        replaceAvatarsOnCommentsRefresh();
+
+        new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(document.querySelector('#content-wrapper'), {childList: true, subtree: true});
+        new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(document.querySelector('.tabun-replies-container'), {childList: true, subtree: true});
 
         replaceHeaderAvatar();
         replaceCommentAvatars();
