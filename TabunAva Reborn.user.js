@@ -51,6 +51,7 @@ function getDefaultSettings() {
     refresh_period: 10,
     refresh_unit: 'minutes',
     animated: true,
+    priority: true,
   };
 }
 
@@ -335,6 +336,12 @@ function getSettingsTemplate() {
           анимированные аватарки\
         </label>\
       </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="priority" name="priority" value="1" class="input-checkbox">\
+          приоритет аватарок из темы над аватарками из профиля\
+        </label>\
+      </dl>\
       <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>\
     </div>\
     <style>\
@@ -524,13 +531,14 @@ function getBlackList() {
 
 function replaceAvatarInImageNode(imageNode, username) {
   const ignore = getBlackList();
-
   const tabunAvatar = getNewTabunAvatar(username);
   if (tabunAvatar && !ignore.includes(username)) {
-    imageNode.setAttribute('src', tabunAvatar);
+    if(GSettings.priority || !imageNode.getAttribute('src') || isDefaultAvatar(imageNode.getAttribute('src'))) {
+      imageNode.setAttribute('src', tabunAvatar);
 
-    if (!GSettings.animated && isGIF(tabunAvatar)) {
-      freezeGIF(imageNode);
+      if (!GSettings.animated && isGIF(tabunAvatar)) {
+        freezeGIF(imageNode);
+      }
     }
   } else if (
     !imageNode.getAttribute('src')
