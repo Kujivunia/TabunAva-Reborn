@@ -486,7 +486,7 @@ function isDefaultAvatar(link) {
 }
 
 function getIdenticonAvatar(username) {
-  return 'https://avatars.dicebear.com/api/identicon/' + username + '.svg?scale=100&size=48';
+  return 'https://api.dicebear.com/8.x/identicon/svg?seed=' + username + '&scale=100&size=48';
 }
 
 function getNewTabunAvatar(username) {
