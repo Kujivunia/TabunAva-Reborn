@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.0
+// @version      1.5.1
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -201,25 +201,23 @@ function getSettingsButtonTemplate() {
   return '\
     <style>\
       .ta-button {\
-        height: 25px;\
+        height: 27px !important;\
         display: inline-block;\
-        width: 25px;\
+        width: 27px !important;\
         vertical-align: bottom;\
         background: linear-gradient(0deg, #f4f4f4, #f9fbfb);\
         color: #8a9198;\
         border-radius: 4px;\
         border: 1px solid #e3e6eb;\
         box-sizing: border-box;\
-        position: relative;\
-        bottom: -3px;\
       }\
       \
       .ta-button > svg {\
         fill: currentColor;\
-        width: 18px;\
-        height: 18px;\
-        margin-top: 3px;\
-        margin-left: 3px;\
+        width: 21px;\
+        height: 21px;\
+        margin-top: 2px;\
+        margin-left: 2px;\
       }\
       \
       .ta-button:hover {\
@@ -877,6 +875,16 @@ function replaceHeaderText() {
   }
 }
 
+function updateMargins() {
+  const itm = document.querySelectorAll("dl.form-item");
+  if (!itm) return;
+  if (window.innerHeight > 800) {
+    itm.forEach((i) => { i.style['marginBottom'] = '' });
+  } else {
+    itm.forEach((i) => { i.style['marginBottom'] = '2px' });
+  }
+}
+
 getSettings()
   .then((settings) => {
     GSettings = settings;
@@ -885,6 +893,8 @@ getSettings()
     initAvatarUpload();
 
     replaceHeaderText();
+    updateMargins();
+    window.addEventListener('resize', updateMargins);
 
     loadAvatarsDictionary()
       .then(() => {
