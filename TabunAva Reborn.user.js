@@ -877,6 +877,16 @@ function replaceHeaderText() {
   }
 }
 
+function updateMargins() {
+  const itm = document.querySelectorAll("dl.form-item");
+  if (!itm) return;
+  if (window.innerHeight > 800) {
+    itm.forEach((i) => { i.style['marginBottom'] = '' });
+  } else {
+    itm.forEach((i) => { i.style['marginBottom'] = '2px' });
+  }
+}
+
 getSettings()
   .then((settings) => {
     GSettings = settings;
@@ -885,6 +895,8 @@ getSettings()
     initAvatarUpload();
 
     replaceHeaderText();
+    updateMargins();
+    window.addEventListener('resize', updateMargins);
 
     loadAvatarsDictionary()
       .then(() => {
