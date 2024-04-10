@@ -201,25 +201,23 @@ function getSettingsButtonTemplate() {
   return '\
     <style>\
       .ta-button {\
-        height: 25px;\
+        height: 27px !important;\
         display: inline-block;\
-        width: 25px;\
+        width: 27px !important;\
         vertical-align: bottom;\
         background: linear-gradient(0deg, #f4f4f4, #f9fbfb);\
         color: #8a9198;\
         border-radius: 4px;\
         border: 1px solid #e3e6eb;\
         box-sizing: border-box;\
-        position: relative;\
-        bottom: -3px;\
       }\
       \
       .ta-button > svg {\
         fill: currentColor;\
-        width: 18px;\
-        height: 18px;\
-        margin-top: 3px;\
-        margin-left: 3px;\
+        width: 21px;\
+        height: 21px;\
+        margin-top: 2px;\
+        margin-left: 2px;\
       }\
       \
       .ta-button:hover {\
