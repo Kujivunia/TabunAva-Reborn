@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.1
+// @version      1.5.2
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -672,6 +672,21 @@ function replaceStreamAvatars() {
   });
 }
 
+// Замена аватаров в окошках просмотра оценок
+function replaceVoteAvatars() {
+  const voteNodes = document.querySelectorAll('.vote-list-item');
+  voteNodes.forEach((voteNode) => {
+    const authorNode = voteNode.querySelector('.ls-user');
+    const username = authorNode && authorNode.textContent.trim();
+    if (!username) return;
+
+    const imageNode = authorNode.querySelector('img');
+    if (!imageNode) return;
+
+    replaceAvatarInImageNode(imageNode, username);
+  });
+}
+
 // Замена аватаров в разделе "Брони"
 function replacePeopleAvatars() {
   const userNodes = document.querySelectorAll('.table-users .cell-name');
@@ -724,6 +739,12 @@ function replaceAvatarsOnCommentsRefresh() {
 
   countCommentsNode.addEventListener('DOMSubtreeModified', () => {
     replaceCommentAvatars();
+  });
+}
+
+function replaceAvatarsOnVotesRefresh() {
+  document.addEventListener('DOMSubtreeModified', () => {
+    replaceVoteAvatars();
   });
 }
 
@@ -901,6 +922,7 @@ getSettings()
         var commentsNode = document.querySelector('#content-wrapper');
         var repliesNode = document.querySelector('.tabun-replies-container');
         if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replaceAvatarsOnVotesRefresh).observe(commentsNode, {childList: true, subtree: true});
         if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
 
         replaceHeaderAvatar();
