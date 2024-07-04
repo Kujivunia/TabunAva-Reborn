@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.3
+// @version      1.5.4
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -54,6 +54,7 @@ function getDefaultSettings() {
     priority: true,
     noregularava: false,
     fixavacorners: false,
+    fixcommentcorners: false,
     notabunava: false,
   };
 }
@@ -335,6 +336,12 @@ function getSettingsTemplate() {
         <label>\
           <input type="checkbox" id="fixavacorners" name="priority" value="0" class="input-checkbox">\
           вернуть квадратные аватарки\
+        </label>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="fixcommentcorners" name="priority" value="0" class="input-checkbox">\
+          исправить нижний левый угол сообщения\
         </label>\
       </dl>\
       <dl class="form-item">\
@@ -907,6 +914,9 @@ function fixStyles() {
   var styleSheet = document.createElement("style");
   if (GSettings.fixavacorners) {
     styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
+  }
+  if (GSettings.fixcommentcorners) {
+    styleSheet.innerText += ".comment-content { border-radius: 8px; } ";
   }
   document.head.appendChild(styleSheet);
 }
