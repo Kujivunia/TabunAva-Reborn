@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.4
+// @version      1.5.5
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -55,6 +55,7 @@ function getDefaultSettings() {
     noregularava: false,
     fixavacorners: false,
     fixcommentcorners: false,
+    oldauthor: false,
     notabunava: false,
   };
 }
@@ -342,6 +343,12 @@ function getSettingsTemplate() {
         <label>\
           <input type="checkbox" id="fixcommentcorners" name="priority" value="0" class="input-checkbox">\
           исправить нижний левый угол сообщения\
+        </label>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="oldauthor" name="priority" value="0" class="input-checkbox">\
+          вернуть старую индикацию автора\
         </label>\
       </dl>\
       <dl class="form-item">\
@@ -917,6 +924,10 @@ function fixStyles() {
   }
   if (GSettings.fixcommentcorners) {
     styleSheet.innerText += ".comment-content { border-radius: 8px; } ";
+  }
+  if (GSettings.oldauthor) {
+    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #779; } "; // I don't recall actual color, if you know, pls let me know too
+    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author::after { display: none; } ";
   }
   document.head.appendChild(styleSheet);
 }
