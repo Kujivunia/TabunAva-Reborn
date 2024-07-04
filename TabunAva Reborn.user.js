@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.1
+// @version      1.5.5
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -53,6 +53,9 @@ function getDefaultSettings() {
     animated: true,
     priority: true,
     noregularava: false,
+    fixavacorners: false,
+    fixcommentcorners: false,
+    oldauthor: false,
     notabunava: false,
   };
 }
@@ -329,6 +332,24 @@ function getSettingsTemplate() {
         >\
           Обновить\
         </button>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="fixavacorners" name="priority" value="0" class="input-checkbox">\
+          вернуть квадратные аватарки\
+        </label>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="fixcommentcorners" name="priority" value="0" class="input-checkbox">\
+          исправить нижний левый угол сообщения\
+        </label>\
+      </dl>\
+      <dl class="form-item">\
+        <label>\
+          <input type="checkbox" id="oldauthor" name="priority" value="0" class="input-checkbox">\
+          вернуть старую индикацию автора\
+        </label>\
       </dl>\
       <dl class="form-item">\
         <label>\
@@ -672,6 +693,21 @@ function replaceStreamAvatars() {
   });
 }
 
+// Замена аватаров в окошках просмотра оценок
+function replaceVoteAvatars() {
+  const voteNodes = document.querySelectorAll('.vote-list-item');
+  voteNodes.forEach((voteNode) => {
+    const authorNode = voteNode.querySelector('.ls-user');
+    const username = authorNode && authorNode.textContent.trim();
+    if (!username) return;
+
+    const imageNode = authorNode.querySelector('img');
+    if (!imageNode) return;
+
+    replaceAvatarInImageNode(imageNode, username);
+  });
+}
+
 // Замена аватаров в разделе "Брони"
 function replacePeopleAvatars() {
   const userNodes = document.querySelectorAll('.table-users .cell-name');
@@ -724,6 +760,12 @@ function replaceAvatarsOnCommentsRefresh() {
 
   countCommentsNode.addEventListener('DOMSubtreeModified', () => {
     replaceCommentAvatars();
+  });
+}
+
+function replaceAvatarsOnVotesRefresh() {
+  document.addEventListener('DOMSubtreeModified', () => {
+    replaceVoteAvatars();
   });
 }
 
@@ -875,6 +917,21 @@ function replaceHeaderText() {
   }
 }
 
+function fixStyles() {
+  var styleSheet = document.createElement("style");
+  if (GSettings.fixavacorners) {
+    styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
+  }
+  if (GSettings.fixcommentcorners) {
+    styleSheet.innerText += ".comment-content { border-radius: 8px; } ";
+  }
+  if (GSettings.oldauthor) {
+    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #779; } "; // I don't recall actual color, if you know, pls let me know too
+    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author::after { display: none; } ";
+  }
+  document.head.appendChild(styleSheet);
+}
+
 function updateMargins() {
   const itm = document.querySelectorAll("dl.form-item");
   if (!itm) return;
@@ -893,6 +950,7 @@ getSettings()
     initAvatarUpload();
 
     replaceHeaderText();
+    fixStyles();
     updateMargins();
     window.addEventListener('resize', updateMargins);
 
@@ -901,6 +959,7 @@ getSettings()
         var commentsNode = document.querySelector('#content-wrapper');
         var repliesNode = document.querySelector('.tabun-replies-container');
         if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replaceAvatarsOnVotesRefresh).observe(commentsNode, {childList: true, subtree: true});
         if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
 
         replaceHeaderAvatar();
