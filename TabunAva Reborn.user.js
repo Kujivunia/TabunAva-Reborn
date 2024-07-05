@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.5
+// @version      1.5.7
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -951,7 +951,7 @@ function fixStyles() {
 function updateMargins() {
   const itm = document.querySelectorAll("dl.form-item");
   if (!itm) return;
-  if (window.innerHeight > 800) {
+  if (window.innerHeight > 1200) {
     itm.forEach((i) => { i.style['marginBottom'] = '' });
   } else {
     itm.forEach((i) => { i.style['marginBottom'] = '2px' });
