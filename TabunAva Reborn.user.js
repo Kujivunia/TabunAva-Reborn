@@ -942,7 +942,7 @@ function fixStyles() {
     styleSheet.innerText += ".comment-content { border-radius: 8px; } ";
   }
   if (GSettings.oldauthor) {
-    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #779; } "; // I don't recall actual color, if you know, pls let me know too
+    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #4b5468; } ";
     styleSheet.innerText += ".comment-info .comment-author.comment-topic-author::after { display: none; } ";
   }
   document.head.appendChild(styleSheet);
