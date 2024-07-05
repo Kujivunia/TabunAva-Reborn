@@ -47,6 +47,7 @@ function getDefaultSettings() {
     faceless_picture: '',
     faceless_picture_f: '',
     blacklist: '',
+    usercss: '',
     header_text: '',
     refresh_period: 10,
     refresh_unit: 'minutes',
@@ -327,9 +328,22 @@ function getSettingsTemplate() {
         <textarea\
           name="blacklist"\
           id="blacklist"\
-          class="input-text input-width-200"\
+          class="input-text input-width-400"\
           rows="2"\
           placeholder="Pony, Pony2, Pony3"\
+          style="resize: vertical"\
+        ></textarea>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="usercss" style="margin-bottom: 7px">\
+          Свой CSS:\
+        </label>\
+        <textarea\
+          name="usercss"\
+          id="usercss"\
+          class="input-text input-width-400"\
+          rows="4"\
+          placeholder="body {\n  background: #000;\n}"\
           style="resize: vertical"\
         ></textarea>\
       </dl>\
@@ -919,6 +933,8 @@ function replaceHeaderText() {
 
 function fixStyles() {
   var styleSheet = document.createElement("style");
+  styleSheet.innerText = GSettings.usercss;
+
   if (GSettings.fixavacorners) {
     styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
   }
