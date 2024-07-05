@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.6
+// @version      1.5.5
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo))
 // @match        https://tabun.everypony.ru/*
@@ -245,55 +245,68 @@ function getSettingsTemplate() {
       <dl class="form-item">\
         <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
       </dl>\
-      <table><tr><dl class="form-item">\
-        <td><label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label></td><td>\
+      <dl class="form-item">\
+        <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>\
         <select name="faceless" id="faceless" class="input-width-200">\
           <option value="default" selected="">Не изменять</option>\
           <option value="identicon">IDENTICON</option>\
           <option value="swarm">Swarm</option>\
           <option value="other">Своя картинка</option>\
-        </select></td>\
-      </dl></tr><tr>\
+        </select>\
+      </dl>\
       <dl class="form-item">\
-        <td><label for="faceless_picture" style="margin-bottom: 7px">\
+        <label for="faceless_picture" style="margin-bottom: 7px">\
           Своя картинка безликого пони:\
-        </label></td><td>\
+        </label>\
         <input\
           type="text"\
           name="faceless_picture"\
           id="faceless_picture"\
           class="input-text input-width-200"\
           placeholder="https://..."\
-        ></td>\
-      </dl></tr><tr>\
+        >\
+      </dl>\
       <dl class="form-item">\
-        <td><label for="faceless_picture_f" style="margin-bottom: 7px">\
-            <span style="text-decoration: underline dotted; cursor: help;" title="(если отличается от предыдущей)">Своя картинка безликой кобылки:</span>\
-        </label></td><td>\
+        <label for="faceless_picture_f" style="margin-bottom: 7px">\
+            Своя картинка безликой кобылки (если отличается от предыдущей):\
+        </label>\
         <input\
           type="text"\
           name="faceless_picture_f"\
           id="faceless_picture_f"\
           class="input-text input-width-200"\
           placeholder="https://..."\
-        ></td>\
-      </dl></tr><tr>\
+        >\
+      </dl>\
       <dl class="form-item">\
-        <td><label for="header_text" style="margin-bottom: 7px">\
+        <label for="header_text" style="margin-bottom: 7px">\
           Заголовок Табуна:\
-        </label></td><td>\
+        </label>\
         <input\
           type="text"\
           name="header_text"\
           id="header_text"\
           class="input-text input-width-200"\
           placeholder="Да, это — Табун!"\
-        ></td>\
-      </dl></tr><tr>\
+        >\
+      </dl>\
       <dl class="form-item">\
-        <td><label for="refresh_period" style="margin-bottom: 7px">\
+        <label for="blacklist" style="margin-bottom: 7px">\
+          Чёрный список:\
+        </label>\
+        <textarea\
+          name="blacklist"\
+          id="blacklist"\
+          class="input-text input-width-200"\
+          rows="2"\
+          placeholder="Pony, Pony2, Pony3"\
+          style="resize: vertical"\
+        ></textarea>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="refresh_period" style="margin-bottom: 7px">\
           Частота обновления базы аватарок:\
-        </label></td><td>\
+        </label>\
         <input\
           type="text"\
           name="refresh_period"\
@@ -319,20 +332,7 @@ function getSettingsTemplate() {
           style="width: 80px; height: 26px; margin-top: -4px;"\
         >\
           Обновить\
-        </button></td>\
-      </dl></tr></table>\
-      <dl class="form-item">\
-        <label for="blacklist" style="margin-bottom: 7px">\
-          Чёрный список:\
-        </label>\
-        <textarea\
-          name="blacklist"\
-          id="blacklist"\
-          class="input-text input-width-400"\
-          rows="2"\
-          placeholder="Pony, Pony2, Pony3"\
-          style="resize: vertical"\
-        ></textarea>\
+        </button>\
       </dl>\
       <dl class="form-item">\
         <label for="usercss" style="margin-bottom: 7px">\
