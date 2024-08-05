@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.8
+// @version      1.5.9
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura)
 // @match        https://tabun.everypony.ru/*
@@ -55,7 +55,6 @@ function getDefaultSettings() {
     priority: true,
     noregularava: false,
     fixavacorners: false,
-    fixcommentcorners: false,
     oldauthor: false,
     notabunava: false,
   };
@@ -355,12 +354,6 @@ function getSettingsTemplate() {
       </dl>\
       <dl class="form-item">\
         <label>\
-          <input type="checkbox" id="fixcommentcorners" name="priority" value="0" class="input-checkbox">\
-          исправить нижний левый угол сообщения\
-        </label>\
-      </dl>\
-      <dl class="form-item">\
-        <label>\
           <input type="checkbox" id="oldauthor" name="priority" value="0" class="input-checkbox">\
           вернуть старую индикацию автора\
         </label>\
@@ -380,13 +373,13 @@ function getSettingsTemplate() {
       <dl class="form-item">\
         <label>\
           <input type="checkbox" id="noregularava" name="priority" value="0" class="input-checkbox">\
-          игнорировать выставленный аватар табуна\
+          игнорировать аватар табуна\
         </label>\
       </dl>\
       <dl class="form-item">\
         <label>\
           <input type="checkbox" id="notabunava" name="priority" value="0" class="input-checkbox">\
-          игнорировать выставленный аватар TabunAva\
+          игнорировать аватар TabunAva\
         </label>\
       </dl>\
       <button id="save_button" type="submit" name="submit" class="button button-primary">Сохранить</button>\
@@ -924,7 +917,7 @@ function initAvatarUpload() {
 
 function replaceHeaderText() {
   if (GSettings.header_text) {
-    const logoNode = document.querySelector('#logolink a');
+    const logoNode = document.querySelector('a#logolink');
     if (!logoNode) return;
 
     logoNode.text = GSettings.header_text;
@@ -937,9 +930,6 @@ function fixStyles() {
 
   if (GSettings.fixavacorners) {
     styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
-  }
-  if (GSettings.fixcommentcorners) {
-    styleSheet.innerText += ".comment-content { border-radius: 8px; } ";
   }
   if (GSettings.oldauthor) {
     styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #4b5468; } ";
