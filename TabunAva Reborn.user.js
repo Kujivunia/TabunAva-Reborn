@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.9
+// @version      1.5.10
 // @description  Установка своего аватара на Табуне!
-// @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura)
+// @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
 // @grant        none
 // @license MIT
+// @downloadURL https://update.greasyfork.org/scripts/435509/TabunAva%20Reborn.user.js
+// @updateURL https://update.greasyfork.org/scripts/435509/TabunAva%20Reborn.meta.js
 // ==/UserScript==
 
 // Tabun Swarm: https://tabun.everypony.ru/blog/uniblog/194538.html
@@ -464,7 +466,7 @@ function fillAvatarsDictionary(avaDocument) {
   const commentNodes = avaDocument.querySelectorAll('#comments .comment');
 
   commentNodes.forEach((commentNode) => {
-    const authorNode = commentNode.querySelector('.comment-author');
+    const authorNode = commentNode.querySelector('.nickname, .comment-author, [itemprop="author"]');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
 
@@ -527,7 +529,7 @@ function isDefaultAvatar(link) {
 }
 
 function getIdenticonAvatar(username) {
-  return 'https://api.dicebear.com/8.x/identicon/svg?seed=' + username + '&scale=100&size=48';
+  return 'https://api.dicebear.com/9.x/identicon/svg?seed=' + username + '&scale=100&size=48';
 }
 
 function getNewTabunAvatar(username) {
@@ -676,10 +678,10 @@ function replaceTopicAuthorAvatars() {
 function replaceCommentAvatars() {
   const commentNodes = document.querySelectorAll('.comment');
   commentNodes.forEach((commentNode) => {
-    const authorNode = commentNode.querySelector('.comment-author');
+    const authorNode = commentNode.querySelector('.nickname, .comment-author, [itemprop="author"]');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
-    const imageNode = commentNode.querySelector('img.comment-avatar');
+   const imageNode = commentNode.querySelector('.user-with-avatar img.avatar, .comment-avatar, .avatar');
     if (!imageNode) return;
     replaceAvatarInImageNode(imageNode, username);
   });
