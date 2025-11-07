@@ -1,10 +1,14 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.10
+// @version      1.5.11
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
+// @match        https://tabun.everypony.info/*
+// @match        https://tabun.everypony.online/*
+// @match        https://tabun.everypony.me/*
+// @match        https://tabun.me/*
 // @grant        none
 // @license MIT
 // @downloadURL https://update.greasyfork.org/scripts/435509/TabunAva%20Reborn.user.js
