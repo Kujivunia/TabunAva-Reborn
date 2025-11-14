@@ -691,21 +691,6 @@ function replaceCommentAvatars() {
   });
 }
 
-// Замена аватаров в ленте активности
-function replaceStreamAvatars() {
-  const streamNodes = document.querySelectorAll('.stream-item');
-  streamNodes.forEach((streamNode) => {
-    const authorNode = streamNode.querySelector('.info a');
-    const username = authorNode && authorNode.textContent.trim();
-    if (!username) return;
-
-    const imageNode = streamNode.querySelector('img');
-    if (!imageNode) return;
-
-    replaceAvatarInImageNode(imageNode, username);
-  });
-}
-
 // Замена аватаров в окошках просмотра оценок
 function replaceVoteAvatars() {
   const voteNodes = document.querySelectorAll('.vote-list-item');
@@ -725,7 +710,7 @@ function replaceVoteAvatars() {
 function replacePeopleAvatars() {
   const userNodes = document.querySelectorAll('.table-users .cell-name');
   userNodes.forEach((userNode) => {
-    const authorNode = userNode.querySelector('.username');
+    const authorNode = userNode.querySelector('.nickname');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
 
@@ -755,9 +740,13 @@ function replaceDonationAvatars() {
     replaceAvatarInImageNode(imageNode, username);
   });
 }
-// Замена аватаров в блоке "Пожертвования"
+
+// Замена аватаров в настройках профиля
 function replaceProfileSettingsAvatar() {
-  const imageNode = document.querySelector('#avatar-img');
+  const avatarNode = document.querySelector("div.avatar-image-wrapper") 
+  if (!avatarNode) return;
+
+  const imageNode = avatarNode.querySelector('img.avatar');
   if (!imageNode) return;
 
   const usernameNode = document.querySelector("#dropdown-user .username");
@@ -773,12 +762,6 @@ function replaceAvatarsOnCommentsRefresh() {
 
   countCommentsNode.addEventListener('DOMSubtreeModified', () => {
     replaceCommentAvatars();
-  });
-}
-
-function replaceAvatarsOnVotesRefresh() {
-  document.addEventListener('DOMSubtreeModified', () => {
-    replaceVoteAvatars();
   });
 }
 
@@ -971,15 +954,14 @@ getSettings()
         var commentsNode = document.querySelector('#content-wrapper');
         var repliesNode = document.querySelector('.tabun-replies-container');
         if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
-        if (commentsNode) new MutationObserver(replaceAvatarsOnVotesRefresh).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replaceVoteAvatars).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replacePeopleAvatars).observe(commentsNode, {childList: true, subtree: true});
         if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
-
         replaceHeaderAvatar();
         replaceCommentAvatars();
         replaceTopicAuthorAvatars();
         replaceProfileAvatar();
         replaceProfileFriendAvatars();
-        replaceStreamAvatars();
         replacePeopleAvatars();
         replaceDonationAvatars();
         replaceProfileSettingsAvatar();
