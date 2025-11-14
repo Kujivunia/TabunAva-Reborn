@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.11
+// @version      1.5.12
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
@@ -19,8 +19,10 @@
 // IDENTICON: https://avatars.dicebear.com/styles/identicon
 
 const GRemoteSettingsLink = 'https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/settings.json';
-const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
-const GEveryponyCdnStorageLink = '//cdn.everypony.ru/storage/';
+const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.[a-z]+\/storage\//;
+const GTabunDomain = location.hostname;
+const GTabunEndDomain = GTabunDomain.split(".").pop();
+const GEveryponyCdnStorageLink = '//cdn.everypony.' + GTabunEndDomain + '/storage/';
 
 let GAvaDictionary = {};
 let GSettings = {};
@@ -158,7 +160,7 @@ function saveSettings() {
 
 function getDefaultRemoteSettings() {
   return {
-    post: 'https://tabun.everypony.ru/blog/TabunAva/203681.html',
+    post: 'https://' + GTabunDomain + '/blog/TabunAva/203681.html',
     blacklist: [],
   };
 }
@@ -248,7 +250,7 @@ function getSettingsTemplate() {
   return '\
     <div class="wrapper-content">\
       <dl class="form-item">\
-        <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
+        <a href="https://' + GTabunDomain + '/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
       </dl>\
       <dl class="form-item">\
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>\
@@ -595,7 +597,7 @@ function replaceAvatarInImageNode(imageNode, username) {
     if (GSettings.faceless === 'identicon') {
       imageNode.setAttribute('src', getIdenticonAvatar(username));
     } else if (GSettings.faceless === 'swarm') {
-      const domain = '//cdn.everypony.ru/storage/00/28/16/2020/03/19/';
+      const domain = '//cdn.everypony.' + GTabunEndDomain + '/storage/00/28/16/2020/03/19/';
       const src = imageNode.getAttribute('src');
 
       if (src.includes('female_48x48.png')) {
@@ -678,31 +680,19 @@ function replaceTopicAuthorAvatars() {
   });
 }
 
-// Замена аватаров в комментариях
+// Замена аватаров (и пометок "Автор") в комментариях
 function replaceCommentAvatars() {
   const commentNodes = document.querySelectorAll('.comment');
   commentNodes.forEach((commentNode) => {
     const authorNode = commentNode.querySelector('.nickname, .comment-author, [itemprop="author"]');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
-   const imageNode = commentNode.querySelector('.user-with-avatar img.avatar, .comment-avatar, .avatar');
+    const imageNode = commentNode.querySelector('.user-with-avatar img.avatar, .comment-avatar, .avatar');
     if (!imageNode) return;
     replaceAvatarInImageNode(imageNode, username);
-  });
-}
-
-// Замена аватаров в ленте активности
-function replaceStreamAvatars() {
-  const streamNodes = document.querySelectorAll('.stream-item');
-  streamNodes.forEach((streamNode) => {
-    const authorNode = streamNode.querySelector('.info a');
-    const username = authorNode && authorNode.textContent.trim();
-    if (!username) return;
-
-    const imageNode = streamNode.querySelector('img');
-    if (!imageNode) return;
-
-    replaceAvatarInImageNode(imageNode, username);
+    if (GSettings.oldauthor) {
+      if(authorNode.parentElement.parentElement.classList.contains('is-topicstarter')) authorNode.setAttribute("title", "Автор");
+    }
   });
 }
 
@@ -725,7 +715,7 @@ function replaceVoteAvatars() {
 function replacePeopleAvatars() {
   const userNodes = document.querySelectorAll('.table-users .cell-name');
   userNodes.forEach((userNode) => {
-    const authorNode = userNode.querySelector('.username');
+    const authorNode = userNode.querySelector('.nickname');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
 
@@ -755,9 +745,13 @@ function replaceDonationAvatars() {
     replaceAvatarInImageNode(imageNode, username);
   });
 }
-// Замена аватаров в блоке "Пожертвования"
+
+// Замена аватаров в настройках профиля
 function replaceProfileSettingsAvatar() {
-  const imageNode = document.querySelector('#avatar-img');
+  const avatarNode = document.querySelector("div.avatar-image-wrapper") 
+  if (!avatarNode) return;
+
+  const imageNode = avatarNode.querySelector('img.avatar');
   if (!imageNode) return;
 
   const usernameNode = document.querySelector("#dropdown-user .username");
@@ -773,12 +767,6 @@ function replaceAvatarsOnCommentsRefresh() {
 
   countCommentsNode.addEventListener('DOMSubtreeModified', () => {
     replaceCommentAvatars();
-  });
-}
-
-function replaceAvatarsOnVotesRefresh() {
-  document.addEventListener('DOMSubtreeModified', () => {
-    replaceVoteAvatars();
   });
 }
 
@@ -859,7 +847,7 @@ function initAvatarUpload() {
         uploadBody.append('img_file', input.files[0]);
         uploadBody.append('security_ls_key', securityLsKey.value);
 
-        return fetch('https://tabun.everypony.ru/ajax/upload/image/', {
+        return fetch('https://' + GTabunDomain + '/ajax/upload/image/', {
           method: 'POST',
           body: uploadBody,
         });
@@ -897,7 +885,7 @@ function initAvatarUpload() {
         commentBody.append('cmt_target_id', postIdMatches[1]);
         commentBody.append('security_ls_key', securityLsKey.value);
 
-        return fetch('https://tabun.everypony.ru/blog/ajaxaddcomment/', {
+        return fetch('https://' + GTabunDomain + '/blog/ajaxaddcomment/', {
           method: 'POST',
           body: commentBody,
         })
@@ -935,11 +923,13 @@ function fixStyles() {
   styleSheet.innerText = GSettings.usercss;
 
   if (GSettings.fixavacorners) {
-    styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
+    styleSheet.innerText += "img.avatar {border-radius: 0px !important; } ";
+    styleSheet.innerText += ".donation-list div a img {border-radius: 0px !important; } ";
   }
   if (GSettings.oldauthor) {
-    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #4b5468; } ";
-    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author::after { display: none; } ";
+    styleSheet.innerText += ".nickname { color: #444; } ";
+    styleSheet.innerText += ".is-topicstarter .nickname { color: #4b5468; } ";
+    styleSheet.innerText += ".is-topicstarter::after { display: none; } ";
   }
   document.head.appendChild(styleSheet);
 }
@@ -971,15 +961,14 @@ getSettings()
         var commentsNode = document.querySelector('#content-wrapper');
         var repliesNode = document.querySelector('.tabun-replies-container');
         if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
-        if (commentsNode) new MutationObserver(replaceAvatarsOnVotesRefresh).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replaceVoteAvatars).observe(commentsNode, {childList: true, subtree: true});
+        if (commentsNode) new MutationObserver(replacePeopleAvatars).observe(commentsNode, {childList: true, subtree: true});
         if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
-
         replaceHeaderAvatar();
         replaceCommentAvatars();
         replaceTopicAuthorAvatars();
         replaceProfileAvatar();
         replaceProfileFriendAvatars();
-        replaceStreamAvatars();
         replacePeopleAvatars();
         replaceDonationAvatars();
         replaceProfileSettingsAvatar();
