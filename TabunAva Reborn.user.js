@@ -678,16 +678,19 @@ function replaceTopicAuthorAvatars() {
   });
 }
 
-// Замена аватаров в комментариях
+// Замена аватаров (и пометок "Автор") в комментариях
 function replaceCommentAvatars() {
   const commentNodes = document.querySelectorAll('.comment');
   commentNodes.forEach((commentNode) => {
     const authorNode = commentNode.querySelector('.nickname, .comment-author, [itemprop="author"]');
     const username = authorNode && authorNode.textContent.trim();
     if (!username) return;
-   const imageNode = commentNode.querySelector('.user-with-avatar img.avatar, .comment-avatar, .avatar');
+    const imageNode = commentNode.querySelector('.user-with-avatar img.avatar, .comment-avatar, .avatar');
     if (!imageNode) return;
     replaceAvatarInImageNode(imageNode, username);
+    if (GSettings.oldauthor) {
+      if(authorNode.parentElement.parentElement.classList.contains('is-topicstarter')) authorNode.setAttribute("title", "Автор");
+    }
   });
 }
 
@@ -918,11 +921,13 @@ function fixStyles() {
   styleSheet.innerText = GSettings.usercss;
 
   if (GSettings.fixavacorners) {
-    styleSheet.innerText += "img.comment-avatar {border-radius: 0px !important; } ";
+    styleSheet.innerText += "img.avatar {border-radius: 0px !important; } ";
+    styleSheet.innerText += ".donation-list div a img {border-radius: 0px !important; } ";
   }
   if (GSettings.oldauthor) {
-    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author span { color: #4b5468; } ";
-    styleSheet.innerText += ".comment-info .comment-author.comment-topic-author::after { display: none; } ";
+    styleSheet.innerText += ".nickname { color: #444; } ";
+    styleSheet.innerText += ".is-topicstarter .nickname { color: #4b5468; } ";
+    styleSheet.innerText += ".is-topicstarter::after { display: none; } ";
   }
   document.head.appendChild(styleSheet);
 }
