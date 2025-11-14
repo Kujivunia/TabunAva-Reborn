@@ -19,8 +19,10 @@
 // IDENTICON: https://avatars.dicebear.com/styles/identicon
 
 const GRemoteSettingsLink = 'https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/settings.json';
-const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.ru\/storage\//;
-const GEveryponyCdnStorageLink = '//cdn.everypony.ru/storage/';
+const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.[a-z]+\/storage\//;
+const GTabunDomain = location.hostname;
+const GTabunEndDomain = GTabunDomain.split(".").pop();
+const GEveryponyCdnStorageLink = '//cdn.everypony.' + GTabunEndDomain + '/storage/';
 
 let GAvaDictionary = {};
 let GSettings = {};
@@ -158,7 +160,7 @@ function saveSettings() {
 
 function getDefaultRemoteSettings() {
   return {
-    post: 'https://tabun.everypony.ru/blog/TabunAva/203681.html',
+    post: 'https://' + GTabunDomain + '/blog/TabunAva/203681.html',
     blacklist: [],
   };
 }
@@ -248,7 +250,7 @@ function getSettingsTemplate() {
   return '\
     <div class="wrapper-content">\
       <dl class="form-item">\
-        <a href="https://tabun.everypony.ru/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
+        <a href="https://' + GTabunDomain + '/settings/account?tabun-ava" id="avatar-upload">Загрузить аватар</a>\
       </dl>\
       <dl class="form-item">\
         <label for="faceless" style="margin-bottom: 7px">Как отображать безликих пони:</label>\
@@ -595,7 +597,7 @@ function replaceAvatarInImageNode(imageNode, username) {
     if (GSettings.faceless === 'identicon') {
       imageNode.setAttribute('src', getIdenticonAvatar(username));
     } else if (GSettings.faceless === 'swarm') {
-      const domain = '//cdn.everypony.ru/storage/00/28/16/2020/03/19/';
+      const domain = '//cdn.everypony.' + GTabunEndDomain + '/storage/00/28/16/2020/03/19/';
       const src = imageNode.getAttribute('src');
 
       if (src.includes('female_48x48.png')) {
@@ -845,7 +847,7 @@ function initAvatarUpload() {
         uploadBody.append('img_file', input.files[0]);
         uploadBody.append('security_ls_key', securityLsKey.value);
 
-        return fetch('https://tabun.everypony.ru/ajax/upload/image/', {
+        return fetch('https://' + GTabunDomain + '/ajax/upload/image/', {
           method: 'POST',
           body: uploadBody,
         });
@@ -883,7 +885,7 @@ function initAvatarUpload() {
         commentBody.append('cmt_target_id', postIdMatches[1]);
         commentBody.append('security_ls_key', securityLsKey.value);
 
-        return fetch('https://tabun.everypony.ru/blog/ajaxaddcomment/', {
+        return fetch('https://' + GTabunDomain + '/blog/ajaxaddcomment/', {
           method: 'POST',
           body: commentBody,
         })
