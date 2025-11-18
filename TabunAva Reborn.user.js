@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.6.0
+// @version      1.6.1
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
@@ -263,6 +263,18 @@ function getSettingsTemplate() {
           placeholder="Pony, Pony2, Pony3"\
           style="resize: vertical"\
         ></textarea>\
+      </dl>\
+      <dl class="form-item">\
+        <label for="header_text" style="margin-bottom: 7px">\
+          Путь к посту с аватарками:\
+        </label>\
+        <input\
+          type="text"\
+          title="Путь относительный, без домена, т.е. /blog/blog_name/1234.html, а не https://tabun.everypony.ru/blog/blog_name/1234.html"\
+          name="remote"\
+          id="remote"\
+          class="input-text input-width-200"\
+        >\
       </dl>\
       <dl class="form-item">\
         <label for="refresh_period" style="margin-bottom: 7px">\
