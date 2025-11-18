@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TabunAva Reborn
 // @namespace    http://tampermonkey.net/
-// @version      1.5.12
+// @version      1.6.0
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
@@ -18,7 +18,6 @@
 // Tabun Swarm: https://tabun.everypony.ru/blog/uniblog/194538.html
 // IDENTICON: https://avatars.dicebear.com/styles/identicon
 
-const GRemoteSettingsLink = 'https://raw.githubusercontent.com/Kujivunia/TabunAva-Reborn/main/settings.json';
 const GEveryponyCdnStorageRegex = /(https?:)?\/\/cdn\.everypony\.[a-z]+\/storage\//;
 const GTabunDomain = location.hostname;
 const GTabunEndDomain = GTabunDomain.split(".").pop();
@@ -65,31 +64,30 @@ function getDefaultSettings() {
     fixavacorners: false,
     oldauthor: false,
     notabunava: false,
+    remote: '/blog/TabunAva/203681.html'
   };
 }
 
-function updateSettingsForm(settings = {}) {
-  const mergedSettings = Object.assign({}, settings);
-
-  Object.keys(mergedSettings).forEach((key) => {
+/**
+ *  GSettings -> Форма настроек
+ */
+function updateSettingsForm() {
+  Object.keys(GSettings).forEach((key) => {
     const node = document.getElementById(key);
     if (node) {
       if (node.type === 'checkbox') {
-        node.checked = mergedSettings[key];
+        node.checked = GSettings[key];
       } else {
-        node.value = mergedSettings[key];
+        node.value = GSettings[key];
       }
     }
   });
 }
 
 /**
- *  Достает локальные настройки из localStorage и объединяет их с внешними настройками с гитхаба
- *  Если пришло время обновлять базу, получает внешние настройки с гитхаба, иначе загружает их
- *  сохранённую копию из localStorage
+ *  localStorage + defaultSettings -> return
  */
 function getSettings() {
-  // Достаём локальные настройки из localStorage
   let settings = {};
   const jsonString = localStorage.getItem('TabunAvaReborn_Settings');
   if (jsonString) {
@@ -99,29 +97,7 @@ function getSettings() {
       settings = {};
     }
   }
-
-  // Объединяем с настройками по-умолчанию, на случай, если в localStorage отсутствуют настройки
-  settings = Object.assign({}, getDefaultSettings(), settings);
-
-  const oldSettings = Object.assign({}, GSettings);
-  GSettings = settings;
-  const shouldUpdate = shouldUpdateAvatarsStorage();
-  GSettings = oldSettings;
-
-  // Получаем внешние настройки и объединяем с ними локальные настройки
-  if (shouldUpdate) {
-    return getRemoteSettings()
-      .then((remoteSettings) => {
-        settings.remote = remoteSettings;
-        localStorage.setItem('TabunAvaReborn_Settings', JSON.stringify(settings));
-        return settings;
-      });
-  } else {
-    if (!settings.remote) {
-      settings.remote = getDefaultRemoteSettings();
-    }
-    return Promise.resolve(settings);
-  }
+  return Object.assign({}, getDefaultSettings(), settings);
 }
 
 function getRefreshMillis() {
@@ -138,12 +114,13 @@ function getRefreshMillis() {
   return millis;
 }
 
+/**
+ *  Форма настроек + defaultSettings -> localStorage, GSettings
+ */
 function saveSettings() {
-  const settings = {
-    remote: GSettings.remote || getDefaultRemoteSettings(),
-  };
+  const settings = getDefaultSettings();
 
-  Object.keys(getDefaultSettings()).forEach((key) => {
+  Object.keys(settings).forEach((key) => {
     const node = document.getElementById(key);
     if (node) {
       if (node.type === 'checkbox') {
@@ -155,30 +132,7 @@ function saveSettings() {
   });
 
   localStorage.setItem('TabunAvaReborn_Settings', JSON.stringify(settings));
-  alert('Настройки сохранены');
-}
-
-function getDefaultRemoteSettings() {
-  return {
-    post: 'https://' + GTabunDomain + '/blog/TabunAva/203681.html',
-    blacklist: [],
-  };
-}
-
-function getRemoteSettings() {
-  return fetch(GRemoteSettingsLink)
-    .then((response) => {
-      if (!response.ok) {
-        return getDefaultRemoteSettings();
-      }
-      return response.json();
-    })
-    .then((settings) => {
-      return Object.assign({}, getDefaultRemoteSettings(), settings);
-    })
-    .catch(() => {
-      return getDefaultRemoteSettings();
-    })
+  GSettings = settings;
 }
 
 function replaceSettingsForm(formNode) {
@@ -195,7 +149,7 @@ function replaceSettingsForm(formNode) {
   const saveButtonNode = document.querySelector('#save_button');
   saveButtonNode.addEventListener('click', (event) => {
     event.preventDefault();
-    saveSettings(saveButtonNode);
+    saveSettings();
   });
 
   const refreshButtonNode = document.querySelector('#refresh_button');
@@ -457,7 +411,16 @@ function initSettingsPage() {
 }
 
 function getAvatarsDocument() {
-  return fetch(GSettings.remote.post)
+  // Преобразуем старый формат настроек в новый: remote.post -> remote, хост + путь -> путь
+  if(GSettings.remote.toString() == "[object Object]") {
+    GSettings.remote = GSettings.remote.post;
+    saveSettings();
+  }
+  if(GSettings.remote.startsWith("http")) {
+    GSettings.remote = new URL(GSettings.remote).pathname;
+    saveSettings();
+  }
+  return fetch('https://' + GTabunDomain + GSettings.remote)
     .then((response) => {
       return response.text();
     })
@@ -495,12 +458,7 @@ function saveAvatarsDictionary() {
 }
 
 function refreshAvatarsStorage() {
-  return getRemoteSettings()
-    .then((remoteSettings) => {
-      GSettings.remote = remoteSettings;
-      localStorage.setItem('TabunAvaReborn_Settings', JSON.stringify(GSettings));
-      return getAvatarsDocument();
-    })
+  return getAvatarsDocument()
     .then((avaDocument) => {
       fillAvatarsDictionary(avaDocument);
       saveAvatarsDictionary();
@@ -567,20 +525,8 @@ function freezeGIF(imageNode) {
   }
 }
 
-function getBlackList() {
-  let blacklist = GSettings.blacklist
-    .replace(/ /g, '')
-    .split(',');
-
-  if (Array.isArray(GSettings.remote && GSettings.remote.blacklist)) {
-    blacklist = blacklist.concat(GSettings.remote.blacklist);
-  }
-
-  return blacklist;
-}
-
 function replaceAvatarInImageNode(imageNode, username) {
-  const ignore = getBlackList();
+  const ignore = GSettings.blacklist.replace(/ /g, '').split(',');
   const tabunAvatar = getNewTabunAvatar(username);
   if (tabunAvatar && !ignore.includes(username)) {
     if(GSettings.priority || !imageNode.getAttribute('src') || isDefaultAvatar(imageNode.getAttribute('src'))) {
@@ -748,7 +694,7 @@ function replaceDonationAvatars() {
 
 // Замена аватаров в настройках профиля
 function replaceProfileSettingsAvatar() {
-  const avatarNode = document.querySelector("div.avatar-image-wrapper") 
+  const avatarNode = document.querySelector("div.avatar-image-wrapper")
   if (!avatarNode) return;
 
   const imageNode = avatarNode.querySelector('img.avatar');
@@ -944,33 +890,30 @@ function updateMargins() {
   }
 }
 
-getSettings()
-  .then((settings) => {
-    GSettings = settings;
+GSettings = getSettings();
 
-    initSettingsPage();
-    initAvatarUpload();
+initSettingsPage();
+initAvatarUpload();
 
-    replaceHeaderText();
-    fixStyles();
-    updateMargins();
-    window.addEventListener('resize', updateMargins);
+replaceHeaderText();
+fixStyles();
+updateMargins();
+window.addEventListener('resize', updateMargins);
 
-    loadAvatarsDictionary()
-      .then(() => {
-        var commentsNode = document.querySelector('#content-wrapper');
-        var repliesNode = document.querySelector('.tabun-replies-container');
-        if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
-        if (commentsNode) new MutationObserver(replaceVoteAvatars).observe(commentsNode, {childList: true, subtree: true});
-        if (commentsNode) new MutationObserver(replacePeopleAvatars).observe(commentsNode, {childList: true, subtree: true});
-        if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
-        replaceHeaderAvatar();
-        replaceCommentAvatars();
-        replaceTopicAuthorAvatars();
-        replaceProfileAvatar();
-        replaceProfileFriendAvatars();
-        replacePeopleAvatars();
-        replaceDonationAvatars();
-        replaceProfileSettingsAvatar();
-      });
-  })
+loadAvatarsDictionary()
+  .then(() => {
+    var commentsNode = document.querySelector('#content-wrapper');
+    var repliesNode = document.querySelector('.tabun-replies-container');
+    if (commentsNode) new MutationObserver(replaceAvatarsOnCommentsRefresh).observe(commentsNode, {childList: true, subtree: true});
+    if (commentsNode) new MutationObserver(replaceVoteAvatars).observe(commentsNode, {childList: true, subtree: true});
+    if (commentsNode) new MutationObserver(replacePeopleAvatars).observe(commentsNode, {childList: true, subtree: true});
+    if (repliesNode) new MutationObserver(replaceAvatarsOnRepliesRefresh).observe(repliesNode, {childList: true, subtree: true});
+    replaceHeaderAvatar();
+    replaceCommentAvatars();
+    replaceTopicAuthorAvatars();
+    replaceProfileAvatar();
+    replaceProfileFriendAvatars();
+    replacePeopleAvatars();
+    replaceDonationAvatars();
+    replaceProfileSettingsAvatar();
+  });
