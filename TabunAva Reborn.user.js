@@ -1,7 +1,6 @@
 // ==UserScript==
 // @name         TabunAva Reborn
-// @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.7.0
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
@@ -630,7 +629,7 @@ function replaceTopicAuthorAvatars() {
     const imageNode = topicNode.querySelector('.avatar');
     if (!imageNode) return;
 
-    const usernameNode = topicNode.querySelector("[rel=author]");
+    const usernameNode = topicNode.querySelector(".nickname");
     const username = usernameNode && usernameNode.textContent.trim();
     if (!username) return;
 
