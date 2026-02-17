@@ -629,7 +629,7 @@ function replaceTopicAuthorAvatars() {
     const imageNode = topicNode.querySelector('.avatar');
     if (!imageNode) return;
 
-    const usernameNode = topicNode.querySelector("[rel=author]");
+    const usernameNode = topicNode.querySelector(".nickname");
     const username = usernameNode && usernameNode.textContent.trim();
     if (!username) return;
 
