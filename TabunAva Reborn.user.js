@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         TabunAva Reborn
-// @version      1.7.0
+// @version      1.7.1
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
