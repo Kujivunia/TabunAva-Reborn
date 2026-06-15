@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         TabunAva Reborn
-// @version      1.7.0
+// @version      1.7.1
 // @description  Установка своего аватара на Табуне!
 // @author       (IntelRug && (Kujivunia || Niko_de_Andjelo) && makise_homura && Qwen)
 // @match        https://tabun.everypony.ru/*
@@ -92,6 +92,13 @@ function getSettings() {
   if (jsonString) {
     try {
       settings = JSON.parse(jsonString);
+      // Преобразуем старый формат настроек в новый: remote.post -> remote, хост + путь -> путь
+      if(settings.remote.toString() == "[object Object]") {
+        settings.remote = settings.remote.post ? settings.remote.post : getDefaultSettings().remote;
+      }
+      if(settings.remote.startsWith("http")) {
+        settings.remote = new URL(settings.remote).pathname;
+      }
     } catch (e) {
       settings = {};
     }
@@ -422,15 +429,6 @@ function initSettingsPage() {
 }
 
 function getAvatarsDocument() {
-  // Преобразуем старый формат настроек в новый: remote.post -> remote, хост + путь -> путь
-  if(GSettings.remote.toString() == "[object Object]") {
-    GSettings.remote = GSettings.remote.post;
-    saveSettings();
-  }
-  if(GSettings.remote.startsWith("http")) {
-    GSettings.remote = new URL(GSettings.remote).pathname;
-    saveSettings();
-  }
   return fetch('https://' + GTabunDomain + GSettings.remote)
     .then((response) => {
       return response.text();
